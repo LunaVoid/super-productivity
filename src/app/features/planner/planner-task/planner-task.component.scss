@@ -1,6 +1,13 @@
 @use '../../../../styles/_globals.scss' as *;
 @use '../../tasks/task/task.component.mixins' as *;
 
+:host.cdk-drag-preview {
+  min-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: var(--whiteframe-shadow-8dp);
+}
+
 :host {
   border-radius: var(--task-border-radius);
   min-height: var(--planner-item-height);

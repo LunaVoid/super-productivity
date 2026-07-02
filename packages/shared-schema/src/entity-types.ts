@@ -33,6 +33,8 @@ export const ENTITY_TYPES = [
   'PLUGIN_METADATA',
   'MIGRATION',
   'GOAL',
+  'PROJECT_MANAGER',
+  'WEEKLY_REVIEW',
   'RECOVERY', // For disaster recovery imports
   'ALL', // For full state imports (sync, backup)
 ] as const;

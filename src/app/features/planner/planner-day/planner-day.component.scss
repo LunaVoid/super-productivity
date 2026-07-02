@@ -118,6 +118,11 @@
   flex-grow: 1;
 }
 
+.scheduled-item planner-task.cdk-drag-placeholder {
+  min-height: var(--planner-item-height);
+  opacity: 0.4;
+}
+
 .normal-tasks-items > *,
 .deadline-items > * {
   margin-bottom: var(--s);

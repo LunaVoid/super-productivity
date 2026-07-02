@@ -98,7 +98,7 @@ export class GoalTreeItemComponent {
     if (g.unit === 'MS' && g.targetMs) {
       return `${_msToHLabel(p)} / ${_msToHLabel(g.targetMs)}`;
     }
-    if (g.unit === 'COUNT' && g.targetCount) {
+    if (g.unit === 'COMPLETIONS' && g.targetCount) {
       return `${p} / ${g.targetCount}`;
     }
     return null;
