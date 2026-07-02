@@ -6,7 +6,11 @@ import { BehaviorSubject, of } from 'rxjs';
 import {
   selectUndoneOverdue,
   selectUndoneOverdueDeadlineTasks,
+  selectUnscheduledTasks,
 } from '../../tasks/store/task.selectors';
+import { TranslateModule } from '@ngx-translate/core';
+import { SnackService } from '../../../core/snack/snack.service';
+import { SmartSchedulerService } from '../smart-scheduler/smart-scheduler.service';
 
 describe('PlannerPlanViewComponent', () => {
   let fixture: ComponentFixture<PlannerPlanViewComponent>;
@@ -18,18 +22,29 @@ describe('PlannerPlanViewComponent', () => {
       'loadMoreDays',
       'resetScrollState',
       'ensureDayLoaded',
+      'getDayOnce$',
     ]);
     mockPlannerService.days$ = of([]);
     mockPlannerService.isLoadingMore$ = new BehaviorSubject<boolean>(false);
+    mockPlannerService.getDayOnce$.and.returnValue(of(undefined));
 
     TestBed.configureTestingModule({
-      imports: [PlannerPlanViewComponent],
+      imports: [PlannerPlanViewComponent, TranslateModule.forRoot()],
       providers: [
         { provide: PlannerService, useValue: mockPlannerService },
+        {
+          provide: SnackService,
+          useValue: jasmine.createSpyObj('SnackService', ['open']),
+        },
+        {
+          provide: SmartSchedulerService,
+          useValue: jasmine.createSpyObj('SmartSchedulerService', ['suggestSchedule']),
+        },
         provideMockStore({
           selectors: [
             { selector: selectUndoneOverdue, value: [] },
             { selector: selectUndoneOverdueDeadlineTasks, value: [] },
+            { selector: selectUnscheduledTasks, value: [] },
           ],
         }),
       ],

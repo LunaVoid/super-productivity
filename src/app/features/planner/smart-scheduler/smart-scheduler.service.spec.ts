@@ -152,13 +152,15 @@ describe('SmartSchedulerService', () => {
   });
 
   describe('work day already over', () => {
-    it('returns empty array when current time is past work end', () => {
+    it('falls back to next 3 hours when current time is past work end', () => {
       const task = makeTask('t1');
       spyOn(Date, 'now').and.returnValue(todayAt(19));
 
       const result = service.suggestSchedule([task], [], 9, 18);
 
-      expect(result.length).toBe(0);
+      // Scheduler falls back to "next 3 hours from now" when outside configured work hours
+      expect(result.length).toBe(1);
+      expect(result[0].task.id).toBe('t1');
     });
   });
 });

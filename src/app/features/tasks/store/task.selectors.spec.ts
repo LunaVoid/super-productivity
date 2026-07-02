@@ -1146,3 +1146,182 @@ describe('Task Selectors', () => {
     expect(ids).toContain('task6');
   });
 });
+
+describe('selectThisWeekTasks', () => {
+  const ONE_DAY_MS = 86400000;
+  const todayStr = getDbDateStr();
+  const tomorrowStr = getDbDateStr(new Date(Date.now() + ONE_DAY_MS));
+  const dayAfterStr = getDbDateStr(new Date(Date.now() + ONE_DAY_MS + ONE_DAY_MS));
+  const EIGHT_DAYS_MS = ONE_DAY_MS * 8;
+  const lastWeekStr = getDbDateStr(new Date(Date.now() - EIGHT_DAYS_MS));
+
+  const makeState = (tasks: Partial<Task>[]): any => {
+    const entities: Record<string, Task> = {};
+    const ids: string[] = [];
+    tasks.forEach((t) => {
+      const task = { ...(DEFAULT_TASK as Task), id: 't1', projectId: 'p1', ...t } as Task;
+      entities[task.id] = task;
+      ids.push(task.id);
+    });
+    return {
+      [appStateFeatureKey]: { todayStr, startOfNextDayDiffMs: 0 },
+      [TASK_FEATURE_NAME]: {
+        ids,
+        entities,
+        currentTaskId: null,
+        selectedTaskId: null,
+        lastCurrentTaskId: null,
+        isDataLoaded: true,
+        taskDetailTargetPanel: null,
+      },
+      [PROJECT_FEATURE_NAME]: {
+        ids: ['p1'],
+        entities: {
+          p1: { id: 'p1', title: 'P', isHiddenFromMenu: false, isArchived: false },
+        },
+      },
+      [TAG_FEATURE_NAME]: { ids: [], entities: {} },
+    };
+  };
+
+  beforeEach(() => {
+    fromSelectors.selectThisWeekTasks.clearResult();
+    fromSelectors.selectAllTasksInActiveProjects.clearResult();
+    selectTodayStr.clearResult();
+    selectStartOfNextDayDiffMs.clearResult();
+    selectProjectFeatureState.clearResult();
+    selectAllProjects.clearResult();
+    selectArchivedProjects.clearResult();
+    selectArrayOfArchivedProjectIds.clearResult();
+    selectArchivedProjectIds.clearResult();
+  });
+
+  afterEach(() => {
+    fromSelectors.selectThisWeekTasks.release();
+    fromSelectors.selectAllTasksInActiveProjects.release();
+  });
+
+  it('returns tasks due later this week (not today)', () => {
+    const state = makeState([
+      { id: 't1', dueDay: tomorrowStr, isDone: false },
+      { id: 't2', dueDay: dayAfterStr, isDone: false },
+    ]);
+    const result = fromSelectors.selectThisWeekTasks(state);
+    expect(result.map((t) => t.id)).toContain('t1');
+    expect(result.map((t) => t.id)).toContain('t2');
+  });
+
+  it("excludes today's tasks", () => {
+    const state = makeState([{ id: 't1', dueDay: todayStr, isDone: false }]);
+    const result = fromSelectors.selectThisWeekTasks(state);
+    expect(result.length).toBe(0);
+  });
+
+  it('excludes done tasks', () => {
+    const state = makeState([{ id: 't1', dueDay: tomorrowStr, isDone: true }]);
+    const result = fromSelectors.selectThisWeekTasks(state);
+    expect(result.length).toBe(0);
+  });
+
+  it('excludes tasks from last week', () => {
+    const state = makeState([{ id: 't1', dueDay: lastWeekStr, isDone: false }]);
+    const result = fromSelectors.selectThisWeekTasks(state);
+    expect(result.length).toBe(0);
+  });
+
+  it('returns tasks sorted by dueDay ascending', () => {
+    const state = makeState([
+      { id: 't2', dueDay: dayAfterStr, isDone: false },
+      { id: 't1', dueDay: tomorrowStr, isDone: false },
+    ]);
+    const result = fromSelectors.selectThisWeekTasks(state);
+    expect(result[0].id).toBe('t1');
+    expect(result[1].id).toBe('t2');
+  });
+});
+
+describe('selectUnscheduledTasks', () => {
+  const makeUnscheduledState = (tasks: Partial<Task>[]): any => {
+    const entities: Record<string, Task> = {};
+    const ids: string[] = [];
+    tasks.forEach((t) => {
+      const task = { ...(DEFAULT_TASK as Task), projectId: 'p1', ...t } as Task;
+      entities[task.id] = task;
+      ids.push(task.id);
+    });
+    return {
+      [appStateFeatureKey]: { todayStr: getDbDateStr(), startOfNextDayDiffMs: 0 },
+      [TASK_FEATURE_NAME]: {
+        ids,
+        entities,
+        currentTaskId: null,
+        selectedTaskId: null,
+        lastCurrentTaskId: null,
+        isDataLoaded: true,
+        taskDetailTargetPanel: null,
+      },
+      [PROJECT_FEATURE_NAME]: {
+        ids: ['p1'],
+        entities: {
+          p1: { id: 'p1', title: 'P', isHiddenFromMenu: false, isArchived: false },
+        },
+      },
+      [TAG_FEATURE_NAME]: { ids: [], entities: {} },
+    };
+  };
+
+  beforeEach(() => {
+    fromSelectors.selectUnscheduledTasks.clearResult();
+    fromSelectors.selectAllTasks.clearResult();
+    fromSelectors.selectAllTasksInActiveProjects.clearResult();
+    selectTodayStr.clearResult();
+    selectStartOfNextDayDiffMs.clearResult();
+    selectProjectFeatureState.clearResult();
+    selectAllProjects.clearResult();
+    selectArchivedProjects.clearResult();
+    selectArrayOfArchivedProjectIds.clearResult();
+    selectArchivedProjectIds.clearResult();
+  });
+
+  it('returns tasks with no dueDay, no dueWithTime, not done, no parentId', () => {
+    const state = makeUnscheduledState([
+      { id: 't1', isDone: false },
+      { id: 't2', isDone: false },
+    ]);
+    const result = fromSelectors.selectUnscheduledTasks(state);
+    expect(result.length).toBe(2);
+    expect(result.map((t) => t.id)).toContain('t1');
+    expect(result.map((t) => t.id)).toContain('t2');
+  });
+
+  it('excludes done tasks', () => {
+    const state = makeUnscheduledState([
+      { id: 't1', isDone: false },
+      { id: 't2', isDone: true },
+    ]);
+    const result = fromSelectors.selectUnscheduledTasks(state);
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe('t1');
+  });
+
+  it('excludes tasks with dueDay set', () => {
+    const tomorrow = getDbDateStr(new Date(Date.now() + 86400000));
+    const state = makeUnscheduledState([
+      { id: 't1', isDone: false },
+      { id: 't2', isDone: false, dueDay: tomorrow },
+    ]);
+    const result = fromSelectors.selectUnscheduledTasks(state);
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe('t1');
+  });
+
+  it('excludes subtasks (parentId set)', () => {
+    const state = makeUnscheduledState([
+      { id: 't1', isDone: false },
+      { id: 't2', isDone: false, parentId: 'some-parent' },
+    ]);
+    const result = fromSelectors.selectUnscheduledTasks(state);
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe('t1');
+  });
+});
