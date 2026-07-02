@@ -42,6 +42,32 @@
         />
       </mat-form-field>
 
+      <div class="section-label">Time horizon</div>
+      <mat-radio-group
+        class="radio-group"
+        [ngModel]="topHorizon()"
+        (ngModelChange)="topHorizon.set($event)"
+      >
+        <mat-radio-button value="YEARLY">
+          <div class="radio-content">
+            <span class="radio-title">Yearly</span>
+            <span class="radio-sub">Big life goal — also creates monthly + weekly</span>
+          </div>
+        </mat-radio-button>
+        <mat-radio-button value="MONTHLY">
+          <div class="radio-content">
+            <span class="radio-title">Monthly</span>
+            <span class="radio-sub">Month-scale goal — also creates weekly</span>
+          </div>
+        </mat-radio-button>
+        <mat-radio-button value="WEEKLY">
+          <div class="radio-content">
+            <span class="radio-title">Weekly</span>
+            <span class="radio-sub">Just this week's habit or target</span>
+          </div>
+        </mat-radio-button>
+      </mat-radio-group>
+
       <div class="section-label">Measure progress by</div>
       <mat-radio-group
         class="radio-group"

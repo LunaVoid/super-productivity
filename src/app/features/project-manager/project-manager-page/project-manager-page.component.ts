@@ -11,11 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
+import { Router } from '@angular/router';
 import { selectAllProjectManagerItems } from '../store/project-manager.selectors';
-import {
-  updateProjectManagerItem,
-  deleteProjectManagerItem,
-} from '../store/project-manager.actions';
+import { updateProjectManagerItem } from '../store/project-manager.actions';
 import { ProjectManagerItem, ProjectManagerStatus } from '../project-manager.model';
 import { DialogCreateProjectManagerItemComponent } from '../dialog-create-project/dialog-create-project.component';
 import { DialogAskClaudeComponent } from '../dialog-ask-claude/dialog-ask-claude.component';
@@ -31,6 +29,7 @@ import { DialogAskClaudeComponent } from '../dialog-ask-claude/dialog-ask-claude
 export class ProjectManagerPageComponent {
   private _store = inject(Store);
   private _matDialog = inject(MatDialog);
+  private _router = inject(Router);
 
   readonly allProjects = this._store.selectSignal(selectAllProjectManagerItems);
 
@@ -47,6 +46,12 @@ export class ProjectManagerPageComponent {
     this._matDialog.open(DialogCreateProjectManagerItemComponent, { width: '520px' });
   }
 
+  openProject(project: ProjectManagerItem): void {
+    if (project.spProjectId) {
+      this._router.navigate([`project/${project.spProjectId}/tasks`]);
+    }
+  }
+
   openAskClaude(project: ProjectManagerItem): void {
     this._matDialog.open(DialogAskClaudeComponent, {
       width: '640px',
@@ -58,10 +63,6 @@ export class ProjectManagerPageComponent {
     this._store.dispatch(
       updateProjectManagerItem({ project: { id: project.id, changes: { status } } }),
     );
-  }
-
-  deleteProject(id: string): void {
-    this._store.dispatch(deleteProjectManagerItem({ id }));
   }
 
   isDeadlineSoon(deadline: string | undefined): boolean {

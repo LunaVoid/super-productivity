@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 import { selectAllGoals } from '../../goal/store/goal.selectors';
 import { addProjectManagerItem } from '../store/project-manager.actions';
 import { ProjectManagerItem } from '../project-manager.model';
+import { ProjectService } from '../../project/project.service';
 
 @Component({
   selector: 'dialog-create-project-manager-item',
@@ -40,6 +41,7 @@ import { ProjectManagerItem } from '../project-manager.model';
 export class DialogCreateProjectManagerItemComponent {
   private _store = inject(Store);
   private _dialogRef = inject(MatDialogRef<DialogCreateProjectManagerItemComponent>);
+  private _projectService = inject(ProjectService);
 
   private readonly _allGoals = this._store.selectSignal(selectAllGoals);
   readonly linkableGoals = computed(() =>
@@ -59,6 +61,7 @@ export class DialogCreateProjectManagerItemComponent {
     const deadline = d
       ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       : undefined;
+    const spProjectId = this._projectService.add({ title: t });
     const project: ProjectManagerItem = {
       id: nanoid(),
       title: t,
@@ -68,6 +71,7 @@ export class DialogCreateProjectManagerItemComponent {
       goalId: this.goalId() ?? undefined,
       tagIds: [],
       created: Date.now(),
+      spProjectId,
     };
     this._store.dispatch(addProjectManagerItem({ project }));
     this._dialogRef.close(project);

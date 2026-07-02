@@ -105,7 +105,10 @@ export class DialogCreateGoalComponent {
     return active.join('/');
   });
 
-  // Step 3 — selected levels (DAILY removed — daily goals are just recurring tasks)
+  // Step 1 — top-level horizon the user is creating
+  readonly topHorizon = signal<'YEARLY' | 'MONTHLY' | 'WEEKLY'>('YEARLY');
+
+  // Step 3 — selected levels derived from topHorizon
   readonly selectedLevels = signal<Set<GoalHorizon>>(
     new Set<GoalHorizon>(['YEARLY', 'MONTHLY', 'WEEKLY']),
   );
@@ -145,15 +148,19 @@ export class DialogCreateGoalComponent {
 
   constructor() {
     // Pre-fill from dialog data (DAILY is no longer a goal level)
-    if (this.data.preselectedHorizon) {
-      const allHorizons: GoalHorizon[] = ['YEARLY', 'MONTHLY', 'WEEKLY'];
-      const horizon =
+    if (this.data.preselectedHorizon && this.data.preselectedHorizon !== 'AREA') {
+      const h =
         this.data.preselectedHorizon === 'DAILY'
           ? 'WEEKLY'
           : this.data.preselectedHorizon;
-      const idx = allHorizons.indexOf(horizon);
-      this.selectedLevels.set(new Set(allHorizons.slice(idx >= 0 ? idx : 0)));
+      this.topHorizon.set(h as 'YEARLY' | 'MONTHLY' | 'WEEKLY');
+      this._syncLevelsFromTopHorizon(h as 'YEARLY' | 'MONTHLY' | 'WEEKLY');
     }
+
+    // Keep selectedLevels in sync when topHorizon changes
+    effect(() => {
+      this._syncLevelsFromTopHorizon(this.topHorizon());
+    });
 
     // Sync taskTitle from title
     effect(() => {
@@ -162,6 +169,12 @@ export class DialogCreateGoalComponent {
         this.taskTitle.set(t);
       }
     });
+  }
+
+  private _syncLevelsFromTopHorizon(h: 'YEARLY' | 'MONTHLY' | 'WEEKLY'): void {
+    const all: ('YEARLY' | 'MONTHLY' | 'WEEKLY')[] = ['YEARLY', 'MONTHLY', 'WEEKLY'];
+    const idx = all.indexOf(h);
+    this.selectedLevels.set(new Set(all.slice(idx)));
   }
 
   onTaskTitleChange(val: string): void {

@@ -70,6 +70,21 @@
   white-space: nowrap;
 }
 
+.goal-focus-badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: var(--palette-accent-500, #7c4dff);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.goal-item.is-focused {
+  border-color: var(--palette-accent-500, #7c4dff);
+  border-width: 2px;
+}
+
 .goal-progress {
   display: flex;
   align-items: center;

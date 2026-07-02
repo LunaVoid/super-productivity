@@ -1,6 +1,6 @@
 import { createSelector, MemoizedSelector } from '@ngrx/store';
 import { goalAdapter, selectGoalFeatureState } from './goal.reducer';
-import { Goal } from '../goal.model';
+import { Goal, GoalState } from '../goal.model';
 import { selectTaskEntities } from '../../tasks/store/task.selectors';
 import { Task } from '../../tasks/task.model';
 
@@ -18,6 +18,10 @@ export const selectGoalById = createSelector(
     if (!goal) throw new Error('No goal ' + props.id);
     return goal;
   },
+);
+
+export const selectFocusedGoals = createSelector(selectAllGoals, (goals) =>
+  goals.filter((g) => g.isFocusedThisWeek),
 );
 
 export const selectGoalsByHorizon = createSelector(
@@ -80,6 +84,34 @@ export const selectTasksForGoalFactory = (
     },
   );
 
+/** Collect all task IDs from a goal and all its descendants (BFS). */
+const _collectAllLinkedTaskIds = (
+  goalId: string,
+  goalState: GoalState,
+  taskEntities: Record<string, Task | undefined>,
+): Set<string> => {
+  const result = new Set<string>();
+  const queue = [goalId];
+  const visited = new Set<string>();
+  while (queue.length) {
+    const id = queue.shift()!;
+    if (visited.has(id)) continue;
+    visited.add(id);
+    const g = goalState.entities[id];
+    if (!g) continue;
+    for (const tid of g.linkedTaskIds) result.add(tid);
+    // Also pick up tasks that have goalId set directly
+    for (const t of Object.values(taskEntities) as Array<Task | undefined>) {
+      if (t && (t as Task & { goalId?: string }).goalId === id) result.add(t.id);
+    }
+    // Enqueue children
+    for (const child of Object.values(goalState.entities) as Array<Goal | undefined>) {
+      if (child && child.parentGoalId === id) queue.push(child.id);
+    }
+  }
+  return result;
+};
+
 export const selectGoalProgressFactory = (
   goalId: string,
   nowTimestamp: number,
@@ -95,19 +127,11 @@ export const selectGoalProgressFactory = (
       const year = now.getFullYear();
       const month = now.getMonth();
 
-      // Build the set of task IDs linked to this goal
-      const linkedIds = new Set(goal.linkedTaskIds);
-
-      // Also include tasks that have goalId set directly on the task
-      // (tasks linked via the task field rather than goal.linkedTaskIds)
-      const linkedTasks: Task[] = (
-        Object.values(taskEntities) as Array<Task | undefined>
-      ).filter((t): t is Task => {
-        if (!t) return false;
-        return (
-          linkedIds.has(t.id) || (t as Task & { goalId?: string }).goalId === goal.id
-        );
-      });
+      // Collect tasks from this goal AND all descendant goals (rollup)
+      const allLinkedIds = _collectAllLinkedTaskIds(goalId, goalState, taskEntities);
+      const linkedTasks: Task[] = [...allLinkedIds]
+        .map((id) => taskEntities[id])
+        .filter((t): t is Task => !!t);
 
       if (goal.unit === 'MS') {
         let total = 0;

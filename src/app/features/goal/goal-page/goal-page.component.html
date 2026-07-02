@@ -80,7 +80,13 @@
   }
 
   <!-- Goal tree -->
-  <div class="goal-tree">
+  <div
+    class="goal-tree"
+    cdkDropList
+    [cdkDropListData]="rootGoals()"
+    [cdkDropListConnectedTo]="areaDropListIds()"
+    (cdkDropListDropped)="dropGoalOnRoot($event)"
+  >
     @if (rootGoals().length === 0) {
       <div class="empty-state">
         <mat-icon>flag</mat-icon>
@@ -95,10 +101,30 @@
     }
 
     @for (goal of rootGoals(); track goal.id) {
-      <goal-tree-item
-        [goal]="goal"
-        (addChild)="openCreateGoalDialog($event.horizon)"
-      ></goal-tree-item>
+      @if (goal.horizon === 'AREA') {
+        <div
+          class="area-drop-zone"
+          [id]="'area-drop-' + goal.id"
+          cdkDropList
+          [cdkDropListData]="[]"
+          (cdkDropListDropped)="dropGoalOnArea($event, goal.id)"
+        >
+          <goal-tree-item
+            [goal]="goal"
+            (addChild)="openCreateGoalDialog($event.horizon, $event.parentId)"
+          ></goal-tree-item>
+        </div>
+      } @else {
+        <div
+          cdkDrag
+          [cdkDragData]="goal"
+        >
+          <goal-tree-item
+            [goal]="goal"
+            (addChild)="openCreateGoalDialog($event.horizon, $event.parentId)"
+          ></goal-tree-item>
+        </div>
+      }
     }
 
     <!-- Inline add buttons per horizon -->

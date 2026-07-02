@@ -13,6 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { TaskService } from '../../tasks/task.service';
+import { WorkContextType } from '../../work-context/work-context.model';
+import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
+import { Store } from '@ngrx/store';
 import { ProjectManagerItem } from '../project-manager.model';
 
 interface ClaudeSubtask {
@@ -47,6 +50,7 @@ interface ClaudeTask {
 })
 export class DialogAskClaudeComponent {
   private _taskService = inject(TaskService);
+  private _store = inject(Store);
   private _dialogRef = inject(MatDialogRef<DialogAskClaudeComponent>);
   readonly project: ProjectManagerItem = inject(MAT_DIALOG_DATA).project;
 
@@ -128,19 +132,45 @@ Rules:
   }
 
   createAll(): void {
+    const spProjectId = this.project.spProjectId;
     for (const t of this.parsedTasks()) {
       if (!t.title.trim()) continue;
-      const taskId = this._taskService.add(
-        t.title,
-        false,
-        {
-          timeEstimate: t.timeEstimate ?? 0,
-          dueDay: t.dueDay ?? undefined,
-          deadlineDay: t.deadlineDay ?? undefined,
-          notes: t.notes ?? undefined,
-        },
-        true,
-      );
+      let taskId: string;
+      if (spProjectId) {
+        const task = this._taskService.createNewTaskWithDefaults({
+          title: t.title,
+          workContextType: WorkContextType.PROJECT,
+          workContextId: spProjectId,
+          additional: {
+            timeEstimate: t.timeEstimate ?? 0,
+            dueDay: t.dueDay ?? undefined,
+            deadlineDay: t.deadlineDay ?? undefined,
+            notes: t.notes ?? undefined,
+          },
+        });
+        taskId = task.id;
+        this._store.dispatch(
+          TaskSharedActions.addTask({
+            task,
+            workContextId: spProjectId,
+            workContextType: WorkContextType.PROJECT,
+            isAddToBacklog: false,
+            isAddToBottom: true,
+          }),
+        );
+      } else {
+        taskId = this._taskService.add(
+          t.title,
+          false,
+          {
+            timeEstimate: t.timeEstimate ?? 0,
+            dueDay: t.dueDay ?? undefined,
+            deadlineDay: t.deadlineDay ?? undefined,
+            notes: t.notes ?? undefined,
+          },
+          true,
+        );
+      }
       if (t.subtasks?.length && taskId) {
         for (const s of t.subtasks) {
           if (!s.title.trim()) continue;

@@ -2,6 +2,7 @@
   class="goal-item"
   [class.is-expanded]="isExpanded()"
   [class.is-area]="goal().horizon === 'AREA'"
+  [class.is-focused]="isFocusedThisWeek()"
 >
   <div class="goal-item-header">
     <button
@@ -15,6 +16,9 @@
 
     <div class="goal-title-wrap">
       <span class="goal-title">{{ goal().title }}</span>
+      @if (isFocusedThisWeek()) {
+        <span class="goal-focus-badge">this week</span>
+      }
       <span class="goal-horizon-badge">{{ goal().horizon | lowercase }}</span>
       @if (hasNoNextAction()) {
         <mat-icon

@@ -129,6 +129,7 @@ export class GoalTreeItemComponent {
   });
 
   readonly isArea = computed(() => this.goal().horizon === 'AREA');
+  readonly isFocusedThisWeek = computed(() => !!this.goal().isFocusedThisWeek);
 
   toggleExpanded(): void {
     this.isExpanded.update((v) => !v);

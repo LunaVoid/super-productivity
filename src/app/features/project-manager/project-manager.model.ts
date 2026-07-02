@@ -11,6 +11,7 @@ export interface ProjectManagerItemCopy {
   goalId?: string;
   tagIds: string[];
   created: number;
+  spProjectId?: string;
 }
 
 export type ProjectManagerItem = Readonly<ProjectManagerItemCopy>;

@@ -2,7 +2,7 @@
 
 <mat-dialog-content>
   @if (step() === 0) {
-    <p class="step-label">Step 1 of 3 — Set 3 intentions for the week</p>
+    <p class="step-label">Step 1 of 4 — Set 3 intentions for the week</p>
     <p class="step-desc">What three things matter most this week?</p>
 
     @for (i of [0, 1, 2]; track i) {
@@ -26,7 +26,7 @@
   }
 
   @if (step() === 1) {
-    <p class="step-label">Step 2 of 3 — Pick your top 7 tasks</p>
+    <p class="step-label">Step 2 of 4 — Pick your top 7 tasks</p>
     <p class="step-desc">
       Select up to 7 tasks to prioritize this week. Selected tasks will be added to today.
       ({{ checkedTaskIds().size }}/7 selected)
@@ -59,7 +59,39 @@
   }
 
   @if (step() === 2) {
-    <p class="step-label">Step 3 of 3 — Pick a focus project</p>
+    <p class="step-label">Step 3 of 4 — Focus goals</p>
+    <p class="step-desc">
+      Which goals will you actively work on this week? Pick up to 5. ({{
+        focusGoalIds().size
+      }}/5 selected)
+    </p>
+
+    @if (focusableGoals().length === 0) {
+      <p class="empty-hint">No goals yet. Add some goals first.</p>
+    }
+
+    <div class="task-checklist">
+      @for (goal of focusableGoals(); track goal.id) {
+        <div
+          class="task-check-item"
+          [class.checked]="isGoalFocused(goal.id)"
+          (click)="toggleGoalFocus(goal.id)"
+        >
+          <mat-checkbox
+            [checked]="isGoalFocused(goal.id)"
+            [disabled]="!isGoalFocused(goal.id) && focusGoalIds().size >= 5"
+            (change)="toggleGoalFocus(goal.id)"
+            (click)="$event.stopPropagation()"
+          ></mat-checkbox>
+          <span class="task-title">{{ goal.title }}</span>
+          <span class="task-date">{{ goal.horizon | lowercase }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (step() === 3) {
+    <p class="step-label">Step 4 of 4 — Pick a focus project</p>
     <p class="step-desc">Which project will you make the most progress on this week?</p>
 
     <mat-form-field class="full-width">
@@ -76,7 +108,7 @@
     </mat-form-field>
   }
 
-  @if (step() === 3) {
+  @if (step() === 4) {
     <div class="summary">
       <h3>This week's plan</h3>
 
@@ -97,6 +129,17 @@
         </div>
       }
 
+      @if (summaryFocusGoals().length > 0) {
+        <div class="summary-section">
+          <strong>Focus goals ({{ summaryFocusGoals().length }})</strong>
+          <ul>
+            @for (g of summaryFocusGoals(); track g.id) {
+              <li>{{ g.title }}</li>
+            }
+          </ul>
+        </div>
+      }
+
       @if (summaryTopTasks().length > 0) {
         <div class="summary-section">
           <strong>Top tasks ({{ summaryTopTasks().length }})</strong>
@@ -112,7 +155,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  @if (step() > 0 && step() < 3) {
+  @if (step() > 0 && step() < 4) {
     <button
       mat-button
       (click)="back()"
@@ -124,10 +167,10 @@
     mat-button
     (click)="cancel()"
   >
-    {{ step() === 3 ? 'Close' : 'Skip' }}
+    {{ step() === 4 ? 'Close' : 'Skip' }}
   </button>
 
-  @if (step() < 2) {
+  @if (step() < 3) {
     <button
       mat-flat-button
       color="primary"
@@ -136,7 +179,7 @@
       Next
     </button>
   }
-  @if (step() === 2) {
+  @if (step() === 3) {
     <button
       mat-flat-button
       color="primary"
@@ -145,7 +188,7 @@
       Review
     </button>
   }
-  @if (step() === 3) {
+  @if (step() === 4) {
     <button
       mat-flat-button
       color="primary"

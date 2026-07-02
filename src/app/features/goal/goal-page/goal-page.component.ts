@@ -16,8 +16,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { selectAllGoals } from '../store/goal.selectors';
-import { addGoal } from '../store/goal.actions';
+import { addGoal, updateGoal } from '../store/goal.actions';
 import { Goal, GoalHorizon, MissedWeekBehavior } from '../goal.model';
 import { selectCalendarProviders } from '../../issue/store/issue-provider.selectors';
 import { GoalTreeItemComponent } from './goal-tree-item.component';
@@ -42,6 +43,7 @@ import {
     MatProgressBarModule,
     MatTooltipModule,
     GoalTreeItemComponent,
+    DragDropModule,
   ],
   templateUrl: './goal-page.component.html',
   styleUrls: ['./goal-page.component.scss'],
@@ -118,9 +120,9 @@ export class GoalPageComponent {
     this.quickAddTitle.set('');
   }
 
-  openCreateGoalDialog(preselectedHorizon?: GoalHorizon): void {
+  openCreateGoalDialog(preselectedHorizon?: GoalHorizon, parentGoalId?: string): void {
     this._matDialog.open(DialogCreateGoalComponent, {
-      data: { preselectedHorizon } satisfies DialogCreateGoalData,
+      data: { preselectedHorizon, parentGoalId } satisfies DialogCreateGoalData,
       width: '480px',
     });
   }
@@ -131,6 +133,31 @@ export class GoalPageComponent {
       width: '400px',
     });
     ref.componentInstance.isAreaMode.set(true);
+  }
+
+  /** IDs of all area cdkDropLists — used so root list can connect to them */
+  readonly areaDropListIds = computed(() =>
+    this.allGoals()
+      .filter((g) => g.horizon === 'AREA')
+      .map((g) => `area-drop-${g.id}`),
+  );
+
+  dropGoalOnArea(event: CdkDragDrop<Goal[]>, areaId: string): void {
+    const goal: Goal = event.item.data;
+    if (!goal || goal.horizon === 'AREA') return;
+    this._store.dispatch(
+      updateGoal({ goal: { id: goal.id, changes: { parentGoalId: areaId } } }),
+    );
+  }
+
+  dropGoalOnRoot(event: CdkDragDrop<Goal[]>): void {
+    if (event.previousContainer === event.container) return;
+    const goal: Goal = event.item.data;
+    if (!goal || goal.horizon === 'AREA') return;
+    // Moved out of an area — clear parent
+    this._store.dispatch(
+      updateGoal({ goal: { id: goal.id, changes: { parentGoalId: undefined } } }),
+    );
   }
 
   exportWeek(): void {

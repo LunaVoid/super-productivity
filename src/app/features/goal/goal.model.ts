@@ -15,6 +15,7 @@ export interface GoalCopy {
   linkedRepeatCfgId?: string;
   linkedTaskIds: string[];
   weeklyIntention?: string;
+  isFocusedThisWeek?: boolean;
   missedWeekBehavior: MissedWeekBehavior;
   color?: string;
   created: number;

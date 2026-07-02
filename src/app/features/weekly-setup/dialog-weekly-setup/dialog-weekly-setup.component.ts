@@ -18,9 +18,12 @@ import { Store } from '@ngrx/store';
 import { nanoid } from 'nanoid';
 import { selectThisWeekTasks } from '../../tasks/store/task.selectors';
 import { selectActiveProjectManagerItems } from '../../project-manager/store/project-manager.selectors';
+import { selectAllGoals } from '../../goal/store/goal.selectors';
+import { updateGoal } from '../../goal/store/goal.actions';
 import { saveWeeklyReview } from '../store/weekly-setup.actions';
 import { WeeklyReview } from '../weekly-setup.model';
 import { Task } from '../../tasks/task.model';
+import { Goal } from '../../goal/goal.model';
 import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
 
 @Component({
@@ -53,7 +56,15 @@ export class DialogWeeklySetupComponent {
   readonly activeProjects = this._store.selectSignal(selectActiveProjectManagerItems);
 
   readonly checkedTaskIds = signal<Set<string>>(new Set());
+  readonly focusGoalIds = signal<Set<string>>(new Set());
   readonly focusProjectId = signal<string | null>(null);
+
+  /** Non-area goals available to focus on, grouped label included */
+  readonly focusableGoals = computed(() =>
+    this._store
+      .selectSignal(selectAllGoals)()
+      .filter((g) => g.horizon !== 'AREA'),
+  );
 
   readonly weekStr = computed(() => {
     const now = new Date();
@@ -76,10 +87,29 @@ export class DialogWeeklySetupComponent {
     return id ? this.activeProjects().find((p) => p.id === id) : null;
   });
 
+  readonly summaryFocusGoals = computed(() => {
+    const ids = this.focusGoalIds();
+    return this.focusableGoals().filter((g: Goal) => ids.has(g.id));
+  });
+
   setIntention(index: number, value: string): void {
     const arr = [...this.intentions()];
     arr[index] = value;
     this.intentions.set(arr);
+  }
+
+  toggleGoalFocus(goalId: string): void {
+    const set = new Set(this.focusGoalIds());
+    if (set.has(goalId)) {
+      set.delete(goalId);
+    } else if (set.size < 5) {
+      set.add(goalId);
+    }
+    this.focusGoalIds.set(set);
+  }
+
+  isGoalFocused(goalId: string): boolean {
+    return this.focusGoalIds().has(goalId);
   }
 
   toggleTask(taskId: string): void {
@@ -114,6 +144,17 @@ export class DialogWeeklySetupComponent {
       created: Date.now(),
     };
     this._store.dispatch(saveWeeklyReview({ review }));
+
+    // Clear old focus flags, then set new ones
+    const newFocusIds = this.focusGoalIds();
+    for (const g of this.focusableGoals()) {
+      const shouldFocus = newFocusIds.has(g.id);
+      if (g.isFocusedThisWeek !== shouldFocus) {
+        this._store.dispatch(
+          updateGoal({ goal: { id: g.id, changes: { isFocusedThisWeek: shouldFocus } } }),
+        );
+      }
+    }
 
     const topTaskIds = [...this.checkedTaskIds()];
     if (topTaskIds.length > 0) {

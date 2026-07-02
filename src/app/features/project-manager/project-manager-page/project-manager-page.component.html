@@ -22,8 +22,8 @@
       track f[0]
     ) {
       <button
+        [color]="filterStatus() === f[0] ? 'primary' : ''"
         mat-stroked-button
-        [class.active]="filterStatus() === f[0]"
         (click)="setFilter($any(f[0]))"
       >
         {{ f[1] }}
@@ -40,7 +40,11 @@
 
   <div class="project-grid">
     @for (project of filteredProjects(); track project.id) {
-      <div class="project-card">
+      <div
+        class="project-card"
+        (click)="openProject(project)"
+        [style.cursor]="project.spProjectId ? 'pointer' : 'default'"
+      >
         <div class="project-card__header">
           <h3 class="project-card__title">{{ project.title }}</h3>
           <span class="status-chip status-chip--{{ project.status | lowercase }}">{{
@@ -66,7 +70,7 @@
           <button
             mat-icon-button
             title="Ask Claude"
-            (click)="openAskClaude(project)"
+            (click)="$event.stopPropagation(); openAskClaude(project)"
           >
             <mat-icon>smart_toy</mat-icon>
           </button>
@@ -75,7 +79,7 @@
             <button
               mat-icon-button
               title="Mark Done"
-              (click)="setStatus(project, 'DONE')"
+              (click)="$event.stopPropagation(); setStatus(project, 'DONE')"
             >
               <mat-icon>check_circle</mat-icon>
             </button>
@@ -83,7 +87,7 @@
             <button
               mat-icon-button
               title="Reactivate"
-              (click)="setStatus(project, 'ACTIVE')"
+              (click)="$event.stopPropagation(); setStatus(project, 'ACTIVE')"
             >
               <mat-icon>replay</mat-icon>
             </button>
@@ -93,19 +97,11 @@
             <button
               mat-icon-button
               title="Pause"
-              (click)="setStatus(project, 'PAUSED')"
+              (click)="$event.stopPropagation(); setStatus(project, 'PAUSED')"
             >
               <mat-icon>pause</mat-icon>
             </button>
           }
-
-          <button
-            mat-icon-button
-            title="Delete"
-            (click)="deleteProject(project.id)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
         </div>
       </div>
     }
