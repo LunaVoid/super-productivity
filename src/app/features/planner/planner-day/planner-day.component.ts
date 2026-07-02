@@ -148,7 +148,7 @@ export class PlannerDayComponent {
           }
         }
         if (startTime !== null) {
-          const remindCfg = millisecondsDiffToRemindOption(startTime, null);
+          const remindCfg = millisecondsDiffToRemindOption(startTime, undefined);
           this._taskService.scheduleTask(task, startTime, remindCfg, false);
         } else {
           // No timed items in the section — open fresh schedule dialog
@@ -190,7 +190,7 @@ export class PlannerDayComponent {
             }
           }
           if (startTime !== null) {
-            const remindCfg = millisecondsDiffToRemindOption(startTime, null);
+            const remindCfg = millisecondsDiffToRemindOption(startTime, undefined);
             this._taskService.scheduleTask(task, startTime, remindCfg, false);
           } else {
             // No timed items yet — plan the task for this day and open the schedule dialog
