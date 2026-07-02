@@ -1,9 +1,6 @@
 name: Build All & Release
 on:
-  push:
-    branches: [master, release/*, test/git-actions]
-    tags:
-      - v*
+  workflow_dispatch:
 
 permissions:
   contents: write
