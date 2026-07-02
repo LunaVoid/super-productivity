@@ -94,6 +94,14 @@ import {
   selectEntities as selectSectionEntitiesFromAdapter,
 } from '../../features/section/store/section.reducer';
 import { GOAL_FEATURE_NAME, goalAdapter } from '../../features/goal/store/goal.reducer';
+import {
+  PROJECT_MANAGER_FEATURE_NAME,
+  projectManagerAdapter,
+} from '../../features/project-manager/store/project-manager.reducer';
+import {
+  WEEKLY_REVIEW_FEATURE_NAME,
+  weeklyReviewAdapter,
+} from '../../features/weekly-setup/store/weekly-setup.reducer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IMPORTS - Selectors
@@ -154,6 +162,14 @@ import {
   selectGoalEntities,
   selectGoalById,
 } from '../../features/goal/store/goal.selectors';
+import {
+  selectProjectManagerEntities,
+  selectProjectManagerItemById,
+} from '../../features/project-manager/store/project-manager.selectors';
+import {
+  selectWeeklyReviewEntities,
+  selectWeeklyReviewById,
+} from '../../features/weekly-setup/store/weekly-setup.reducer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENTITY CONFIGS
@@ -279,6 +295,24 @@ export const buildEntityRegistry = (): EntityRegistry<EntityType> =>
       adapter: goalAdapter,
       selectEntities: selectGoalEntities,
       selectById: selectGoalById,
+    },
+
+    PROJECT_MANAGER: {
+      storagePattern: 'adapter',
+      featureName: PROJECT_MANAGER_FEATURE_NAME,
+      payloadKey: 'projectManager',
+      adapter: projectManagerAdapter,
+      selectEntities: selectProjectManagerEntities,
+      selectById: selectProjectManagerItemById,
+    },
+
+    WEEKLY_REVIEW: {
+      storagePattern: 'adapter',
+      featureName: WEEKLY_REVIEW_FEATURE_NAME,
+      payloadKey: 'weeklyReview',
+      adapter: weeklyReviewAdapter,
+      selectEntities: selectWeeklyReviewEntities,
+      selectById: selectWeeklyReviewById,
     },
 
     // ── SINGLETON ENTITIES ─────────────────────────────────────────────────────

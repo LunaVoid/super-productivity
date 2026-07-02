@@ -3,13 +3,18 @@ import {
   projectManagerAdapter,
   selectProjectManagerFeatureState,
 } from './project-manager.reducer';
-import { ProjectManagerStatus } from '../project-manager.model';
+import { ProjectManagerItem, ProjectManagerStatus } from '../project-manager.model';
 
-const { selectAll } = projectManagerAdapter.getSelectors();
+const { selectAll, selectEntities } = projectManagerAdapter.getSelectors();
 
 export const selectAllProjectManagerItems = createSelector(
   selectProjectManagerFeatureState,
   selectAll,
+);
+
+export const selectProjectManagerEntities = createSelector(
+  selectProjectManagerFeatureState,
+  selectEntities,
 );
 
 export const selectActiveProjectManagerItems = createSelector(
@@ -19,5 +24,9 @@ export const selectActiveProjectManagerItems = createSelector(
 
 export const selectProjectManagerItemById = createSelector(
   selectProjectManagerFeatureState,
-  (state, props: { id: string }) => state.entities[props.id],
+  (state, props: { id: string }): ProjectManagerItem => {
+    const item = state.entities[props.id];
+    if (!item) throw new Error('No project manager item ' + props.id);
+    return item;
+  },
 );

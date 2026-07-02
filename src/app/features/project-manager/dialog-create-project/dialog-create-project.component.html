@@ -27,13 +27,19 @@
     <mat-label>Deadline (optional)</mat-label>
     <input
       matInput
-      type="date"
-      [ngModel]="deadline()"
-      (ngModelChange)="deadline.set($event)"
+      [matDatepicker]="deadlinePicker"
+      [ngModel]="deadlineDate()"
+      (ngModelChange)="deadlineDate.set($event)"
+      placeholder="MM/DD/YYYY"
     />
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="deadlinePicker"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #deadlinePicker></mat-datepicker>
   </mat-form-field>
 
-  @if (allGoals().length > 0) {
+  @if (linkableGoals().length > 0) {
     <mat-form-field class="full-width">
       <mat-label>Linked Goal (optional)</mat-label>
       <mat-select
@@ -41,7 +47,7 @@
         (ngModelChange)="goalId.set($event)"
       >
         <mat-option [value]="null">None</mat-option>
-        @for (goal of allGoals(); track goal.id) {
+        @for (goal of linkableGoals(); track goal.id) {
           <mat-option [value]="goal.id">{{ goal.title }}</mat-option>
         }
       </mat-select>

@@ -33,6 +33,14 @@ export enum ActionType {
   GOAL_LINK_TASK = '[Goal] Link Task to Goal',
   GOAL_UNLINK_TASK = '[Goal] Unlink Task from Goal',
 
+  // ProjectManager actions
+  PROJECT_MANAGER_ADD = '[ProjectManager] Add Project',
+  PROJECT_MANAGER_UPDATE = '[ProjectManager] Update Project',
+  PROJECT_MANAGER_DELETE = '[ProjectManager] Delete Project',
+
+  // WeeklySetup actions
+  WEEKLY_REVIEW_SAVE = '[WeeklySetup] Save Weekly Review',
+
   // GlobalConfig actions (C)
   GLOBAL_CONFIG_UPDATE_SECTION = '[Global Config] Update Global Config Section',
 

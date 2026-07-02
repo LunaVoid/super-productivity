@@ -31,7 +31,22 @@ export const weeklyReviewReducer = createReducer<WeeklyReviewState>(
   ),
 );
 
-const { selectAll } = weeklyReviewAdapter.getSelectors();
+const { selectAll, selectEntities } = weeklyReviewAdapter.getSelectors();
+
+export const selectWeeklyReviewEntities = createSelector(
+  selectWeeklyReviewFeatureState,
+  selectEntities,
+);
+
+export const selectWeeklyReviewById = createSelector(
+  selectWeeklyReviewFeatureState,
+  (state, props: { id: string }): WeeklyReview => {
+    const item = state.entities[props.id];
+    if (!item) throw new Error('No weekly review ' + props.id);
+    return item;
+  },
+);
+
 export const selectAllWeeklyReviews = createSelector(
   selectWeeklyReviewFeatureState,
   selectAll,

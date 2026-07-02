@@ -63,6 +63,14 @@ export const ACTION_TYPE_TO_CODE: Record<ActionType, string> = {
   [ActionType.GOAL_LINK_TASK]: 'FL',
   [ActionType.GOAL_UNLINK_TASK]: 'FX',
 
+  // ProjectManager actions (PM)
+  [ActionType.PROJECT_MANAGER_ADD]: 'PMA',
+  [ActionType.PROJECT_MANAGER_UPDATE]: 'PMU',
+  [ActionType.PROJECT_MANAGER_DELETE]: 'PMD',
+
+  // WeeklySetup actions (WR)
+  [ActionType.WEEKLY_REVIEW_SAVE]: 'WRS',
+
   // Tag actions (G)
   [ActionType.TAG_ADD]: 'GA',
   [ActionType.TAG_UPDATE]: 'GU',
