@@ -43,13 +43,16 @@ import { Log } from '../../core/log';
 import { DialogArchiveCompressionComponent } from '../../features/archive/dialog-archive-compression/dialog-archive-compression.component';
 import { DataValidationFailedError } from '../../op-log/core/errors/sync-errors';
 import { alertDialog } from '../../util/native-dialogs';
+import { OperationLogStoreService } from '../../op-log/persistence/operation-log-store.service';
+import { LegacyPfDbService } from '../../core/persistence/legacy-pf-db.service';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'file-imex',
   templateUrl: './file-imex.component.html',
   styleUrls: ['./file-imex.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIcon, MatButton, MatTooltip, TranslatePipe],
+  imports: [MatIcon, MatButton, MatTooltip, TranslatePipe, MatDialogModule],
 })
 export class FileImexComponent implements OnInit {
   private _snackService = inject(SnackService);
@@ -59,6 +62,8 @@ export class FileImexComponent implements OnInit {
   private _matDialog = inject(MatDialog);
   private _http = inject(HttpClient);
   private _importEncryptionHandler = inject(ImportEncryptionHandlerService);
+  private _opLogStore = inject(OperationLogStoreService);
+  private _legacyDb = inject(LegacyPfDbService);
 
   readonly fileInputRef = viewChild<ElementRef>('fileInput');
   T: typeof T = T;
@@ -296,5 +301,21 @@ export class FileImexComponent implements OnInit {
       width: '500px',
       maxWidth: '90vw',
     });
+  }
+
+  async wipeAllData(): Promise<void> {
+    const confirmed = window.confirm(
+      'Are you sure you want to wipe ALL data? This cannot be undone.',
+    );
+    if (!confirmed) return;
+    try {
+      await this._opLogStore._clearAllDataForTesting();
+      await this._legacyDb.clearAll();
+      localStorage.clear();
+      window.location.reload();
+    } catch (e) {
+      Log.err('Wipe failed', e);
+      this._snackService.open({ type: 'ERROR', msg: 'Wipe failed — check console.' });
+    }
   }
 }

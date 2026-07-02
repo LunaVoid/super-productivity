@@ -56,3 +56,13 @@
   <mat-icon>compress</mat-icon>
   {{ T.FILE_IMEX.BTN_COMPRESS_ARCHIVE | translate }}
 </button>
+
+<button
+  (click)="wipeAllData()"
+  color="warn"
+  mat-stroked-button
+  type="button"
+>
+  <mat-icon>delete_forever</mat-icon>
+  Wipe All Data
+</button>
