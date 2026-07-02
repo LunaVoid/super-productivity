@@ -178,7 +178,7 @@ done-toggle {
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 500;
-  color: var(--warn);
+  color: var(--c-warn);
   padding: 0 var(--s-half);
   white-space: nowrap;
 
@@ -186,11 +186,11 @@ done-toggle {
     font-size: 13px;
     width: 13px;
     height: 13px;
-    color: var(--warn);
+    color: var(--c-warn);
   }
 
   &--urgent {
-    background: var(--warn);
+    background: var(--c-warn);
     color: #fff;
     border-radius: 4px;
     padding: 1px var(--s-half);
