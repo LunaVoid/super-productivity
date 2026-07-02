@@ -24,6 +24,10 @@ import { TIME_TRACKING_FEATURE_KEY } from '../features/time-tracking/store/time-
 import { TimeTrackingState } from '../features/time-tracking/time-tracking.model';
 import { GOAL_FEATURE_NAME } from '../features/goal/store/goal.reducer';
 import { GoalState } from '../features/goal/goal.model';
+import { PROJECT_MANAGER_FEATURE_NAME } from '../features/project-manager/store/project-manager.reducer';
+import { ProjectManagerState } from '../features/project-manager/project-manager.model';
+import { WEEKLY_REVIEW_FEATURE_NAME } from '../features/weekly-setup/store/weekly-setup.reducer';
+import { WeeklyReviewState } from '../features/weekly-setup/weekly-setup.model';
 
 export interface RootState {
   [TASK_FEATURE_NAME]: TaskState;
@@ -39,4 +43,6 @@ export interface RootState {
   [appStateFeatureKey]: AppState;
   [TIME_TRACKING_FEATURE_KEY]: TimeTrackingState;
   [GOAL_FEATURE_NAME]: GoalState;
+  [PROJECT_MANAGER_FEATURE_NAME]: ProjectManagerState;
+  [WEEKLY_REVIEW_FEATURE_NAME]: WeeklyReviewState;
 }

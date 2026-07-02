@@ -1,0 +1,135 @@
+.project-manager-page {
+  padding: var(--s3);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s2);
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.filter-bar {
+  display: flex;
+  gap: var(--s);
+  margin-bottom: var(--s2);
+  flex-wrap: wrap;
+
+  button.active {
+    background: var(--primary);
+    color: var(--on-primary, #fff);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--s4);
+  color: var(--text-color-muted);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin: 0 auto var(--s);
+  }
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--s2);
+}
+
+.project-card {
+  background: var(--card-bg);
+  border: 1px solid var(--divider-color);
+  border-radius: var(--card-border-radius);
+  padding: var(--s2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-color-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--s-quarter);
+    margin-top: auto;
+  }
+}
+
+.status-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--active {
+    background: var(--primary, #1976d2);
+    color: #fff;
+  }
+
+  &--done {
+    background: var(--success, #388e3c);
+    color: #fff;
+  }
+
+  &--paused {
+    background: var(--text-color-muted, #757575);
+    color: #fff;
+  }
+}
+
+.deadline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-color-muted);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &--soon {
+    color: var(--warn);
+
+    mat-icon {
+      color: var(--warn);
+    }
+  }
+}

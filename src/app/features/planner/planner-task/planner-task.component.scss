@@ -181,6 +181,17 @@ done-toggle {
     height: 13px;
     color: var(--warn);
   }
+
+  &--urgent {
+    background: var(--warn);
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px var(--s-half);
+
+    mat-icon {
+      color: #fff;
+    }
+  }
 }
 
 .original-time-remaining {

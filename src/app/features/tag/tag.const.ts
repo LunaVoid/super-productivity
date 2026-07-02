@@ -95,6 +95,73 @@ export const IN_PROGRESS_TAG: Tag = {
   },
 };
 
+export const WORK_AREA_TAG: Tag = {
+  color: null,
+  created: 1000,
+  ...WORK_CONTEXT_DEFAULT_COMMON,
+  icon: 'work',
+  title: 'Work',
+  id: 'AREA_WORK',
+  theme: {
+    ...WORK_CONTEXT_DEFAULT_THEME,
+    primary: '#1565C0',
+    backgroundImageDark: '',
+    isDisableBackgroundTint: true,
+  },
+};
+
+export const SCHOOL_AREA_TAG: Tag = {
+  color: null,
+  created: 1001,
+  ...WORK_CONTEXT_DEFAULT_COMMON,
+  icon: 'school',
+  title: 'School',
+  id: 'AREA_SCHOOL',
+  theme: {
+    ...WORK_CONTEXT_DEFAULT_THEME,
+    primary: '#6A1B9A',
+    backgroundImageDark: '',
+    isDisableBackgroundTint: true,
+  },
+};
+
+export const HEALTH_AREA_TAG: Tag = {
+  color: null,
+  created: 1002,
+  ...WORK_CONTEXT_DEFAULT_COMMON,
+  icon: 'favorite',
+  title: 'Health',
+  id: 'AREA_HEALTH',
+  theme: {
+    ...WORK_CONTEXT_DEFAULT_THEME,
+    primary: '#2E7D32',
+    backgroundImageDark: '',
+    isDisableBackgroundTint: true,
+  },
+};
+
+export const PERSONAL_AREA_TAG: Tag = {
+  color: null,
+  created: 1003,
+  ...WORK_CONTEXT_DEFAULT_COMMON,
+  icon: 'person',
+  title: 'Personal',
+  id: 'AREA_PERSONAL',
+  theme: {
+    ...WORK_CONTEXT_DEFAULT_THEME,
+    primary: '#E65100',
+    backgroundImageDark: '',
+    isDisableBackgroundTint: true,
+  },
+};
+
+export const DEFAULT_AREA_TAGS: Tag[] = [
+  WORK_AREA_TAG,
+  SCHOOL_AREA_TAG,
+  HEALTH_AREA_TAG,
+  PERSONAL_AREA_TAG,
+];
+
 /**
  * IDs of system-created tags that should be excluded when counting user-created tags.
  * These tags are created automatically and don't represent user data.

@@ -127,6 +127,13 @@ export class PlannerTaskComponent implements OnInit, OnDestroy, AfterViewInit {
     return daysUntil >= 0 && daysUntil <= 7;
   }
 
+  get isDeadlineUrgent(): boolean {
+    const d = this.task?.deadlineDay;
+    if (!d) return false;
+    const daysUntil = (new Date(d).getTime() - Date.now()) / 86400000;
+    return daysUntil >= 0 && daysUntil <= 3;
+  }
+
   get deadlineDayLabel(): string {
     const d = this.task?.deadlineDay;
     if (!d) return '';

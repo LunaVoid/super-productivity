@@ -1,0 +1,157 @@
+<h2 mat-dialog-title>Weekly Setup — {{ weekStr() }}</h2>
+
+<mat-dialog-content>
+  @if (step() === 0) {
+    <p class="step-label">Step 1 of 3 — Set 3 intentions for the week</p>
+    <p class="step-desc">What three things matter most this week?</p>
+
+    @for (i of [0, 1, 2]; track i) {
+      <mat-form-field class="full-width">
+        <mat-label>Intention {{ i + 1 }}</mat-label>
+        <input
+          matInput
+          [ngModel]="intentions()[i]"
+          (ngModelChange)="setIntention(i, $event)"
+          [placeholder]="
+            'e.g. ' +
+            [
+              'Make progress on the dementia assistant',
+              'Exercise every day',
+              'Reach out to 3 people',
+            ][i]
+          "
+        />
+      </mat-form-field>
+    }
+  }
+
+  @if (step() === 1) {
+    <p class="step-label">Step 2 of 3 — Pick your top 7 tasks</p>
+    <p class="step-desc">
+      Select up to 7 tasks to prioritize this week. Selected tasks will be added to today.
+      ({{ checkedTaskIds().size }}/7 selected)
+    </p>
+
+    @if (thisWeekTasks().length === 0) {
+      <p class="empty-hint">No tasks scheduled this week. Add some tasks first.</p>
+    }
+
+    <div class="task-checklist">
+      @for (task of thisWeekTasks(); track task.id) {
+        <div
+          class="task-check-item"
+          [class.checked]="isChecked(task.id)"
+          (click)="toggleTask(task.id)"
+        >
+          <mat-checkbox
+            [checked]="isChecked(task.id)"
+            [disabled]="!isChecked(task.id) && checkedTaskIds().size >= 7"
+            (change)="toggleTask(task.id)"
+            (click)="$event.stopPropagation()"
+          ></mat-checkbox>
+          <span class="task-title">{{ task.title }}</span>
+          @if (task.dueDay) {
+            <span class="task-date">{{ task.dueDay }}</span>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (step() === 2) {
+    <p class="step-label">Step 3 of 3 — Pick a focus project</p>
+    <p class="step-desc">Which project will you make the most progress on this week?</p>
+
+    <mat-form-field class="full-width">
+      <mat-label>Focus project (optional)</mat-label>
+      <mat-select
+        [ngModel]="focusProjectId()"
+        (ngModelChange)="focusProjectId.set($event)"
+      >
+        <mat-option [value]="null">None</mat-option>
+        @for (project of activeProjects(); track project.id) {
+          <mat-option [value]="project.id">{{ project.title }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  @if (step() === 3) {
+    <div class="summary">
+      <h3>This week's plan</h3>
+
+      @if (summaryIntentions().length > 0) {
+        <div class="summary-section">
+          <strong>Intentions</strong>
+          <ul>
+            @for (i of summaryIntentions(); track $index) {
+              <li>{{ i }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (summaryProject()) {
+        <div class="summary-section">
+          <strong>Focus project:</strong> {{ summaryProject()!.title }}
+        </div>
+      }
+
+      @if (summaryTopTasks().length > 0) {
+        <div class="summary-section">
+          <strong>Top tasks ({{ summaryTopTasks().length }})</strong>
+          <ul>
+            @for (t of summaryTopTasks(); track t.id) {
+              <li>{{ t.title }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (step() > 0 && step() < 3) {
+    <button
+      mat-button
+      (click)="back()"
+    >
+      Back
+    </button>
+  }
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    {{ step() === 3 ? 'Close' : 'Skip' }}
+  </button>
+
+  @if (step() < 2) {
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="next()"
+    >
+      Next
+    </button>
+  }
+  @if (step() === 2) {
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="next()"
+    >
+      Review
+    </button>
+  }
+  @if (step() === 3) {
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="submit()"
+    >
+      Save & Start Week
+    </button>
+  }
+</mat-dialog-actions>

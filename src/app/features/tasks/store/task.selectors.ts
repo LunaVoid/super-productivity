@@ -741,26 +741,45 @@ const isoWeekForDayStr = (dayStr: string): string => {
 };
 
 /**
- * Tasks with dueDay in the current ISO week, excluding today's tasks and done tasks.
- * Ordered by dueDay ascending. Used for the "This Week" section in the work view.
+ * Tasks with dueDay OR deadlineDay in the current ISO week (after today), excluding done tasks.
+ * Ordered by the earliest of dueDay/deadlineDay ascending.
+ * Used for the "This Week" section in the work view.
  */
 export const selectThisWeekTasks = createSelector(
   selectAllTasksInActiveProjects,
   selectTodayStr,
-  (tasks, todayStr): TaskWithDueDay[] => {
+  (tasks, todayStr): Task[] => {
     if (!todayStr) return [];
     const currentWeek = isoWeekForDayStr(todayStr);
-    return tasks
-      .filter(
-        (t): t is TaskWithDueDay =>
-          !!t.dueDay &&
-          !t.isDone &&
-          t.dueDay !== todayStr &&
-          isDBDateStr(t.dueDay) &&
-          t.dueDay > todayStr &&
-          isoWeekForDayStr(t.dueDay) === currentWeek,
-      )
-      .sort((a, b) => a.dueDay.localeCompare(b.dueDay));
+
+    const isDueDayThisWeek = (t: Task): boolean =>
+      !!t.dueDay &&
+      isDBDateStr(t.dueDay) &&
+      t.dueDay > todayStr &&
+      isoWeekForDayStr(t.dueDay) === currentWeek;
+
+    const isDeadlineDayThisWeek = (t: Task): boolean =>
+      !!t.deadlineDay &&
+      isDBDateStr(t.deadlineDay) &&
+      t.deadlineDay > todayStr &&
+      isoWeekForDayStr(t.deadlineDay) === currentWeek;
+
+    const seen = new Set<string>();
+    const result: Task[] = [];
+    for (const t of tasks) {
+      if (!t.isDone && (isDueDayThisWeek(t) || isDeadlineDayThisWeek(t))) {
+        if (!seen.has(t.id)) {
+          seen.add(t.id);
+          result.push(t);
+        }
+      }
+    }
+
+    return result.sort((a, b) => {
+      const aDate = a.dueDay || a.deadlineDay || '';
+      const bDate = b.dueDay || b.deadlineDay || '';
+      return aDate.localeCompare(bDate);
+    });
   },
 );
 

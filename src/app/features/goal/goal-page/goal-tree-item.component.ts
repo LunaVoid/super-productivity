@@ -23,6 +23,7 @@ import {
   selectTasksForGoalFactory,
 } from '../store/goal.selectors';
 import { deleteGoal, unlinkTaskFromGoal, updateGoal } from '../store/goal.actions';
+import { selectCurrentTaskId } from '../../tasks/store/task.selectors';
 import { ActiveGoalService } from '../active-goal.service';
 import { LayoutService } from '../../../core-ui/layout/layout.service';
 import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
@@ -77,6 +78,8 @@ export class GoalTreeItemComponent {
     this._store.selectSignal(selectGoalProgressFactory(this.goal().id, Date.now()))(),
   );
 
+  private readonly _currentTaskId = this._store.selectSignal(selectCurrentTaskId);
+
   readonly progressPercent = computed(() => {
     const g = this.goal();
     const p = this.progress();
@@ -87,6 +90,24 @@ export class GoalTreeItemComponent {
       return Math.min(100, Math.round((p / g.targetCount) * 100));
     }
     return 0;
+  });
+
+  readonly progressDetailLabel = computed(() => {
+    const g = this.goal();
+    const p = this.progress();
+    if (g.unit === 'MS' && g.targetMs) {
+      return `${_msToHLabel(p)} / ${_msToHLabel(g.targetMs)}`;
+    }
+    if (g.unit === 'COUNT' && g.targetCount) {
+      return `${p} / ${g.targetCount}`;
+    }
+    return null;
+  });
+
+  readonly isCurrentlyTracking = computed(() => {
+    const currentId = this._currentTaskId();
+    if (!currentId) return false;
+    return this.linkedTasks().some((t) => t.id === currentId);
   });
 
   readonly hasNoNextAction = computed(
@@ -177,3 +198,8 @@ export class GoalTreeItemComponent {
     this._layoutService.showAddTaskBar();
   }
 }
+
+const _msToHLabel = (ms: number): string => {
+  const h = ms / 3600000;
+  return h >= 1 ? `${Math.round(h * 10) / 10}h` : `${Math.round(ms / 60000)}m`;
+};

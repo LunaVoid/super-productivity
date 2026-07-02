@@ -66,6 +66,12 @@ export type MiscConfig = Readonly<{
   taskNotesTpl?: string; // Deprecated
   isOverlayIndicatorEnabled?: boolean; // Deprecated – moved to taskWidget.isEnabled
   overlayIndicatorOpacity?: number; // Deprecated – moved to taskWidget.opacity
+  /**
+   * Controls how @date syntax is interpreted.
+   * PLANNED_FIRST (default): @date sets dueDay (planned-for date); @@date sets deadlineDay.
+   * DEADLINE_FIRST: @date sets deadlineDay; task sits unscheduled until manually placed.
+   */
+  schedulingMode?: 'PLANNED_FIRST' | 'DEADLINE_FIRST';
 }>;
 
 export type TasksConfig = Readonly<{

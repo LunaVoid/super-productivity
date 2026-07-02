@@ -17,6 +17,15 @@
       </div>
     }
   </div>
+  <div class="schedule-week-btn-wrap">
+    <button
+      mat-stroked-button
+      (click)="openScheduleWeekDialog()"
+    >
+      <mat-icon>calendar_view_week</mat-icon>
+      Schedule week
+    </button>
+  </div>
   @if (todayUntimedTasks().length > 0) {
     <div class="schedule-day-btn-wrap">
       <button
@@ -46,7 +55,7 @@
           @if (scheduleMode() === 'PRIORITY') {
             <mat-icon>check</mat-icon>
           }
-          By priority (due date, age)
+          By priority (planned-for date, age)
         </button>
         <button
           mat-menu-item

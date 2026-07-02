@@ -7,6 +7,7 @@ export { ScheduleComponent } from '../features/schedule/schedule/schedule.compon
 export { BoardsComponent } from '../features/boards/boards.component';
 export { HabitPageComponent } from '../pages/habit-page/habit-page.component';
 export { GoalPageComponent } from '../features/goal/goal-page/goal-page.component';
+export { ProjectManagerPageComponent } from '../features/project-manager/project-manager-page/project-manager-page.component';
 export { DonatePageComponent } from '../pages/donate-page/donate-page.component';
 export { ContrastTestComponent } from '../pages/contrast-test/contrast-test.component';
 export { PluginIndexComponent } from '../plugins/ui/plugin-index/plugin-index.component';

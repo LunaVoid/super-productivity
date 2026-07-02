@@ -53,11 +53,43 @@
     border-radius: 4px;
   }
 
+  .progress-label-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
   .progress-label {
     font-size: 12px;
     color: var(--text-color-muted, rgba(0, 0, 0, 0.5));
     width: 32px;
     text-align: right;
+  }
+
+  .progress-detail {
+    font-size: 11px;
+    color: var(--text-color-muted, rgba(0, 0, 0, 0.5));
+    white-space: nowrap;
+  }
+
+  .tracking-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--palette-accent-500, #4caf50);
+    animation: tracking-pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes tracking-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
   }
 }
 

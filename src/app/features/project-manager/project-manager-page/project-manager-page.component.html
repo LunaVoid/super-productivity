@@ -1,0 +1,113 @@
+<div class="page-wrapper project-manager-page">
+  <div class="page-header">
+    <h1>Projects</h1>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openCreateDialog()"
+    >
+      <mat-icon>add</mat-icon>
+      New Project
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    @for (
+      f of [
+        ['ALL', 'All'],
+        ['ACTIVE', 'Active'],
+        ['PAUSED', 'Paused'],
+        ['DONE', 'Done'],
+      ];
+      track f[0]
+    ) {
+      <button
+        mat-stroked-button
+        [class.active]="filterStatus() === f[0]"
+        (click)="setFilter($any(f[0]))"
+      >
+        {{ f[1] }}
+      </button>
+    }
+  </div>
+
+  @if (filteredProjects().length === 0) {
+    <div class="empty-state">
+      <mat-icon>folder_open</mat-icon>
+      <p>No projects yet. Create one to get started.</p>
+    </div>
+  }
+
+  <div class="project-grid">
+    @for (project of filteredProjects(); track project.id) {
+      <div class="project-card">
+        <div class="project-card__header">
+          <h3 class="project-card__title">{{ project.title }}</h3>
+          <span class="status-chip status-chip--{{ project.status | lowercase }}">{{
+            project.status
+          }}</span>
+        </div>
+
+        @if (project.description) {
+          <p class="project-card__desc">{{ project.description }}</p>
+        }
+
+        @if (project.deadline) {
+          <div
+            class="deadline-badge"
+            [class.deadline-badge--soon]="isDeadlineSoon(project.deadline)"
+          >
+            <mat-icon>event</mat-icon>
+            {{ deadlineLabel(project.deadline) }}
+          </div>
+        }
+
+        <div class="project-card__actions">
+          <button
+            mat-icon-button
+            title="Ask Claude"
+            (click)="openAskClaude(project)"
+          >
+            <mat-icon>smart_toy</mat-icon>
+          </button>
+
+          @if (project.status !== 'DONE') {
+            <button
+              mat-icon-button
+              title="Mark Done"
+              (click)="setStatus(project, 'DONE')"
+            >
+              <mat-icon>check_circle</mat-icon>
+            </button>
+          } @else {
+            <button
+              mat-icon-button
+              title="Reactivate"
+              (click)="setStatus(project, 'ACTIVE')"
+            >
+              <mat-icon>replay</mat-icon>
+            </button>
+          }
+
+          @if (project.status === 'ACTIVE') {
+            <button
+              mat-icon-button
+              title="Pause"
+              (click)="setStatus(project, 'PAUSED')"
+            >
+              <mat-icon>pause</mat-icon>
+            </button>
+          }
+
+          <button
+            mat-icon-button
+            title="Delete"
+            (click)="deleteProject(project.id)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

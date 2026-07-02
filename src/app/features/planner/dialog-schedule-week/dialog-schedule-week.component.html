@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Schedule Week</h2>
+
+<mat-dialog-content>
+  <p class="hint">Tasks are auto-distributed across the next 7 days. Drag to reassign.</p>
+
+  @if (candidateTasks().length === 0) {
+    <div class="empty-state">
+      <mat-icon>event_available</mat-icon>
+      <p>No unscheduled tasks found.</p>
+    </div>
+  } @else {
+    <div class="week-grid">
+      @for (col of dayColumns(); track col.dateStr) {
+        <div
+          class="day-col"
+          [class.day-col--dragover]="dragOverDate() === col.dateStr"
+          (dragover)="onDragOver($event, col.dateStr)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event, col.dateStr)"
+        >
+          <div class="day-col-header">
+            <span class="day-label">{{ col.label }}</span>
+            @if (col.tasks.length > 0) {
+              <span class="day-time">{{ formatTime(totalDayTime(col.tasks)) }}</span>
+            }
+          </div>
+
+          <div class="task-list">
+            @for (task of col.tasks; track task.id) {
+              <div
+                class="task-chip"
+                [class.task-chip--dragging]="draggedTaskId() === task.id"
+                draggable="true"
+                (dragstart)="onDragStart(task.id)"
+                [matTooltip]="task.title"
+              >
+                <span class="task-chip-title">{{ task.title }}</span>
+                @if (task.timeEstimate) {
+                  <span class="task-chip-time">{{ formatTime(task.timeEstimate) }}</span>
+                }
+                @if (task.deadlineDay) {
+                  <mat-icon
+                    class="deadline-icon"
+                    [matTooltip]="'Deadline: ' + task.deadlineDay"
+                    >flag</mat-icon
+                  >
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    Cancel
+  </button>
+  <button
+    mat-flat-button
+    [disabled]="candidateTasks().length === 0"
+    (click)="apply()"
+  >
+    Apply ({{ totalAssigned() }} tasks)
+  </button>
+</mat-dialog-actions>

@@ -30,7 +30,19 @@
           mode="determinate"
           [value]="progressPercent()"
         ></mat-progress-bar>
-        <span class="progress-label">{{ progressPercent() }}%</span>
+        <div class="progress-label-row">
+          @if (progressDetailLabel()) {
+            <span class="progress-detail">{{ progressDetailLabel() }}</span>
+          } @else {
+            <span class="progress-label">{{ progressPercent() }}%</span>
+          }
+          @if (isCurrentlyTracking()) {
+            <span
+              class="tracking-dot"
+              matTooltip="Tracking in progress"
+            ></span>
+          }
+        </div>
       </div>
     }
 

@@ -108,6 +108,14 @@ import {
   reminderReducer,
 } from '../features/reminder/store/reminder.reducer';
 import { GOAL_FEATURE_NAME, goalReducer } from '../features/goal/store/goal.reducer';
+import {
+  PROJECT_MANAGER_FEATURE_NAME,
+  projectManagerReducer,
+} from '../features/project-manager/store/project-manager.reducer';
+import {
+  WEEKLY_REVIEW_FEATURE_NAME,
+  weeklyReviewReducer,
+} from '../features/weekly-setup/store/weekly-setup.reducer';
 @NgModule({
   declarations: [],
   imports: [
@@ -147,6 +155,10 @@ import { GOAL_FEATURE_NAME, goalReducer } from '../features/goal/store/goal.redu
     StoreModule.forFeature(SECTION_FEATURE_NAME, sectionReducer),
 
     StoreModule.forFeature(GOAL_FEATURE_NAME, goalReducer),
+
+    StoreModule.forFeature(PROJECT_MANAGER_FEATURE_NAME, projectManagerReducer),
+
+    StoreModule.forFeature(WEEKLY_REVIEW_FEATURE_NAME, weeklyReviewReducer),
 
     StoreModule.forFeature(TAG_FEATURE_NAME, tagReducer),
     EffectsModule.forFeature([TagEffects]),

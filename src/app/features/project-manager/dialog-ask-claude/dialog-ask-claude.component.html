@@ -1,0 +1,116 @@
+<h2 mat-dialog-title>
+  <mat-icon>smart_toy</mat-icon>
+  Ask Claude — {{ project.title }}
+</h2>
+
+<mat-dialog-content>
+  @if (step() === 'copy') {
+    <p class="step-hint">
+      Copy this prompt and paste it into Claude to generate tasks for your project.
+    </p>
+
+    <mat-form-field class="full-width">
+      <mat-label>Prompt</mat-label>
+      <textarea
+        matInput
+        [value]="prompt()"
+        readonly
+        rows="14"
+        class="prompt-textarea"
+      ></textarea>
+    </mat-form-field>
+  }
+
+  @if (step() === 'paste') {
+    <p class="step-hint">Paste Claude's JSON response below.</p>
+
+    <mat-form-field class="full-width">
+      <mat-label>Claude's JSON response</mat-label>
+      <textarea
+        matInput
+        [ngModel]="pastedJson()"
+        (ngModelChange)="pastedJson.set($event)"
+        placeholder='[{ "title": "...", ... }]'
+        rows="10"
+      ></textarea>
+    </mat-form-field>
+
+    @if (parseError()) {
+      <p class="error-msg">{{ parseError() }}</p>
+    }
+  }
+
+  @if (step() === 'preview') {
+    <p class="step-hint">Preview the tasks that will be created:</p>
+
+    <div class="task-preview-list">
+      @for (t of parsedTasks(); track $index) {
+        <div class="task-preview-item">
+          <strong>{{ t.title }}</strong>
+          <span class="task-meta">
+            @if (t.timeEstimate) {
+              {{ msToHours(t.timeEstimate) }}
+            }
+            @if (t.dueDay) {
+              · Planned: {{ t.dueDay }}
+            }
+            @if (t.deadlineDay) {
+              · Due: {{ t.deadlineDay }}
+            }
+          </span>
+          @if (t.notes) {
+            <p class="task-notes">{{ t.notes }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (step() !== 'copy') {
+    <button
+      mat-button
+      (click)="back()"
+    >
+      Back
+    </button>
+  }
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    Cancel
+  </button>
+
+  @if (step() === 'copy') {
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="copyPrompt()"
+    >
+      <mat-icon>content_copy</mat-icon>
+      {{ copied() ? 'Copied!' : 'Copy Prompt' }}
+    </button>
+  }
+  @if (step() === 'paste') {
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="!pastedJson().trim()"
+      (click)="parseJson()"
+    >
+      Parse JSON
+    </button>
+  }
+  @if (step() === 'preview') {
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="parsedTasks().length === 0"
+      (click)="createAll()"
+    >
+      Create {{ parsedTasks().length }} tasks
+    </button>
+  }
+</mat-dialog-actions>

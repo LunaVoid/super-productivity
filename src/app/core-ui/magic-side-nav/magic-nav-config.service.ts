@@ -442,6 +442,14 @@ export class MagicNavConfigService {
       route: '/goals',
     });
 
+    items.push({
+      type: 'route',
+      id: 'project-manager',
+      label: 'Projects',
+      icon: 'folder',
+      route: '/project-manager',
+    });
+
     if (this.isHabitsEnabled()) {
       items.push({
         type: 'route',

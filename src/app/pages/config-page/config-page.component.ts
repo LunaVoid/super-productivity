@@ -67,6 +67,8 @@ import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatButton } from '@angular/material/button';
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
 import { LocalBackupService } from '../../imex/local-backup/local-backup.service';
 
 @Component({
@@ -86,6 +88,8 @@ import { LocalBackupService } from '../../imex/local-backup/local-backup.service
     MatIcon,
     MatTooltip,
     MatButton,
+    MatRadioModule,
+    FormsModule,
   ],
 })
 export class ConfigPageComponent implements OnInit {
@@ -107,6 +111,14 @@ export class ConfigPageComponent implements OnInit {
   readonly syncSettingsService = inject(SyncConfigService);
   readonly taskWidgetSettingsService = inject(TaskWidgetSettingsService);
   readonly focusModeLocalSettingsService = inject(FocusModeLocalSettingsService);
+
+  get schedulingMode(): 'PLANNED_FIRST' | 'DEADLINE_FIRST' {
+    return this.globalCfg?.misc?.schedulingMode ?? 'PLANNED_FIRST';
+  }
+
+  setSchedulingMode(mode: 'PLANNED_FIRST' | 'DEADLINE_FIRST'): void {
+    this.configService.updateSection('misc', { schedulingMode: mode });
+  }
 
   T: typeof T = T;
 

@@ -127,4 +127,15 @@ export class GoalPageComponent {
   exportWeek(): void {
     void this._weeklyExportService.exportWeek();
   }
+
+  openWeeklySetup(): void {
+    import('../../../features/weekly-setup/dialog-weekly-setup/dialog-weekly-setup.component').then(
+      ({ DialogWeeklySetupComponent }) => {
+        this._matDialog.open(DialogWeeklySetupComponent, {
+          width: '560px',
+          maxHeight: '90vh',
+        });
+      },
+    );
+  }
 }

@@ -37,6 +37,7 @@ import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions'
 import { SnackService } from '../../../core/snack/snack.service';
 import { getDbDateStr } from '../../../util/get-db-date-str';
 import { selectTimelineWorkStartEndHours } from '../../config/store/global-config.reducer';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'planner-plan-view',
@@ -63,6 +64,7 @@ export class PlannerPlanViewComponent {
   private _elRef = inject(ElementRef);
   private _smartScheduler = inject(SmartSchedulerService);
   private _snackService = inject(SnackService);
+  private _matDialog = inject(MatDialog);
 
   overdue$ = this._store.select(selectUndoneOverdue);
   overdueDeadlines$ = this._store.select(selectUndoneOverdueDeadlineTasks);
@@ -180,6 +182,18 @@ export class PlannerPlanViewComponent {
           isSkipTranslate: true,
         });
       });
+  }
+
+  openScheduleWeekDialog(): void {
+    import('../dialog-schedule-week/dialog-schedule-week.component').then(
+      ({ DialogScheduleWeekComponent }) => {
+        this._matDialog.open(DialogScheduleWeekComponent, {
+          width: '900px',
+          maxWidth: '95vw',
+          maxHeight: '90vh',
+        });
+      },
+    );
   }
 
   setScheduleMode(mode: SmartScheduleMode): void {

@@ -1,0 +1,58 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: var(--s);
+
+  mat-icon {
+    color: var(--primary);
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.step-hint {
+  margin-top: 0;
+  color: var(--text-color-muted);
+  font-size: 14px;
+}
+
+.prompt-textarea {
+  font-family: var(--font-mono-stack, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.error-msg {
+  color: var(--warn);
+  font-size: 13px;
+}
+
+.task-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s);
+}
+
+.task-preview-item {
+  background: var(--bg-lighter);
+  border-radius: var(--card-border-radius);
+  padding: var(--s);
+
+  strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+.task-meta {
+  font-size: 12px;
+  color: var(--text-color-muted);
+}
+
+.task-notes {
+  margin: var(--s-quarter) 0 0;
+  font-size: 12px;
+  color: var(--text-color-muted);
+}

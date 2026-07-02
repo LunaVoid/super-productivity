@@ -74,6 +74,32 @@
                 (save)="saveGlobalCfg($event)"
               ></config-sound-form>
             </section>
+
+            <section class="config-section scheduling-mode-section">
+              <h3 class="mat-h3">Scheduling Behavior</h3>
+              <mat-radio-group
+                class="scheduling-mode-radio-group"
+                [ngModel]="schedulingMode"
+                (ngModelChange)="setSchedulingMode($event)"
+              >
+                <mat-radio-button value="PLANNED_FIRST">
+                  <strong>Planned-for first</strong> (default)
+                  <p class="radio-desc">
+                    <code>&#64;friday</code> puts the task in Friday's planner column. Use
+                    <code>&#64;&#64;friday</code> to set a hard deadline separately. Best
+                    if you like to manually control when you work on things.
+                  </p>
+                </mat-radio-button>
+                <mat-radio-button value="DEADLINE_FIRST">
+                  <strong>Deadline first</strong>
+                  <p class="radio-desc">
+                    <code>&#64;friday</code> sets a hard deadline of Friday. The task sits
+                    in Unscheduled until you schedule it with Schedule Day/Week. Best if
+                    you want the scheduler to figure out when you work on things.
+                  </p>
+                </mat-radio-button>
+              </mat-radio-group>
+            </section>
           </div>
         </mat-tab>
 

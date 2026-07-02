@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>New Project</h2>
+
+<mat-dialog-content>
+  <mat-form-field class="full-width">
+    <mat-label>Title</mat-label>
+    <input
+      matInput
+      [ngModel]="title()"
+      (ngModelChange)="title.set($event)"
+      placeholder="Project title"
+      required
+    />
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Description / Definition of Done</mat-label>
+    <textarea
+      matInput
+      [ngModel]="description()"
+      (ngModelChange)="description.set($event)"
+      placeholder="What does done look like?"
+      rows="4"
+    ></textarea>
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Deadline (optional)</mat-label>
+    <input
+      matInput
+      type="date"
+      [ngModel]="deadline()"
+      (ngModelChange)="deadline.set($event)"
+    />
+  </mat-form-field>
+
+  @if (allGoals().length > 0) {
+    <mat-form-field class="full-width">
+      <mat-label>Linked Goal (optional)</mat-label>
+      <mat-select
+        [ngModel]="goalId()"
+        (ngModelChange)="goalId.set($event)"
+      >
+        <mat-option [value]="null">None</mat-option>
+        @for (goal of allGoals(); track goal.id) {
+          <mat-option [value]="goal.id">{{ goal.title }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    Cancel
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!title().trim()"
+    (click)="submit()"
+  >
+    Create Project
+  </button>
+</mat-dialog-actions>

@@ -14,7 +14,7 @@
 import { createEntityAdapter, EntityAdapter } from '@ngrx/entity';
 import { Tag, TagState } from '../tag.model';
 import { createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
-import { TODAY_TAG } from '../tag.const';
+import { DEFAULT_AREA_TAGS, TODAY_TAG } from '../tag.const';
 import { WorkContextType } from '../../work-context/work-context.model';
 import {
   moveTaskDownInTodayList,
@@ -202,10 +202,27 @@ const _addMyDayTagIfNecessary = (state: TagState): TagState => {
   return state;
 };
 
-export const initialTagState: TagState = _addMyDayTagIfNecessary(
-  tagAdapter.getInitialState({
-    // additional entity state properties
-  }),
+const _addDefaultAreaTagsIfNecessary = (state: TagState): TagState => {
+  const ids = state.ids as string[];
+  let updated = state;
+  for (const tag of DEFAULT_AREA_TAGS) {
+    if (!ids.includes(tag.id)) {
+      updated = {
+        ...updated,
+        ids: [...(updated.ids as string[]), tag.id],
+        entities: { ...updated.entities, [tag.id]: tag },
+      };
+    }
+  }
+  return updated;
+};
+
+export const initialTagState: TagState = _addDefaultAreaTagsIfNecessary(
+  _addMyDayTagIfNecessary(
+    tagAdapter.getInitialState({
+      // additional entity state properties
+    }),
+  ),
 );
 
 export const tagReducer = createReducer<TagState>(
@@ -214,7 +231,11 @@ export const tagReducer = createReducer<TagState>(
   // META ACTIONS
   // ------------
   on(loadAllData, (oldState, { appDataComplete }) =>
-    _addMyDayTagIfNecessary(appDataComplete.tag ? { ...appDataComplete.tag } : oldState),
+    _addDefaultAreaTagsIfNecessary(
+      _addMyDayTagIfNecessary(
+        appDataComplete.tag ? { ...appDataComplete.tag } : oldState,
+      ),
+    ),
   ),
 
   // NOTE: transferTask is now handled in planner-shared.reducer.ts

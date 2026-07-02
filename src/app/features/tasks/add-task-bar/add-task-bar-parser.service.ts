@@ -111,9 +111,13 @@ export class AddTaskBarParserService {
       return;
     }
 
+    // Convert @@date syntax to !date (deadline) before goal/short-syntax parsing.
+    // Must run first so @@friday is consumed before @friday is matched as dueDay.
+    const textWithDeadlineConverted = text.replace(/@@(\S+)/g, '!$1');
+
     // Extract !goal-name tokens before passing to short-syntax (which uses ! for deadlines)
     const { goalId: parsedGoalId, cleanedText: textForShortSyntax } =
-      this.parseGoalFromText(text, allGoals);
+      this.parseGoalFromText(textWithDeadlineConverted, allGoals);
 
     // Get current tags from state to preserve pre-selected tags
     const currentState = this._stateService.state();
@@ -402,7 +406,8 @@ export class AddTaskBarParserService {
         break;
 
       case 'deadline':
-        // Remove deadline date and time syntax (e.g., !today !16:30 !2024-01-15)
+        // Remove deadline date and time syntax (e.g., !today !16:30 !2024-01-15 @@friday)
+        cleanedInput = cleanedInput.replace(/\s*@@\S+/g, '');
         cleanedInput = cleanedInput.replace(/\s*!\S+/g, '');
         break;
 

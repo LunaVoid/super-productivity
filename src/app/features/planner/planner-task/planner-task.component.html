@@ -39,7 +39,11 @@
         ></tag-list>
       </div>
 
-      @if (isDeadlineSoon) {
+      @if (isDeadlineUrgent) {
+        <div class="deadline-chip deadline-chip--urgent">
+          <mat-icon>warning</mat-icon><strong>{{ deadlineDayLabel }}</strong>
+        </div>
+      } @else if (isDeadlineSoon) {
         <div class="deadline-chip"><mat-icon>flag</mat-icon>{{ deadlineDayLabel }}</div>
       }
 
