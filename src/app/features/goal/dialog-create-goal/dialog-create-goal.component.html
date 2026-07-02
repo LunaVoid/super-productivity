@@ -1,0 +1,214 @@
+<h2 mat-dialog-title>New Goal</h2>
+
+<mat-dialog-content>
+  <!-- STEP 1: Core info -->
+  @if (step() === 1) {
+    <div class="step">
+      <mat-form-field
+        appearance="outline"
+        class="full-width"
+      >
+        <mat-label>Goal name</mat-label>
+        <input
+          matInput
+          [ngModel]="title()"
+          (ngModelChange)="title.set($event)"
+          (keydown.enter)="canGoNext() && next()"
+          placeholder="e.g. Drink 1 gallon of water"
+          autofocus
+        />
+      </mat-form-field>
+
+      <div class="section-label">Measure progress by</div>
+      <mat-radio-group
+        class="radio-group"
+        [ngModel]="measureType()"
+        (ngModelChange)="measureType.set($event)"
+      >
+        <mat-radio-button value="COUNT">
+          <div class="radio-content">
+            <span class="radio-title">Count</span>
+            <span class="radio-sub">10 applications, exercise 4x/week</span>
+          </div>
+        </mat-radio-button>
+        <mat-radio-button value="TIME">
+          <div class="radio-content">
+            <span class="radio-title">Time invested</span>
+            <span class="radio-sub">Get good at art, work on website</span>
+          </div>
+        </mat-radio-button>
+        <mat-radio-button value="STREAK">
+          <div class="radio-content">
+            <span class="radio-title">Streak / Habit</span>
+            <span class="radio-sub">Exercise daily, voice practice, water</span>
+          </div>
+        </mat-radio-button>
+      </mat-radio-group>
+
+      <div class="section-label">Does this repeat?</div>
+      <mat-radio-group
+        class="radio-group"
+        [ngModel]="doesRepeat()"
+        (ngModelChange)="doesRepeat.set($event)"
+      >
+        <mat-radio-button [value]="true">Yes — create a recurring task</mat-radio-button>
+        <mat-radio-button [value]="false">No — I'll add tasks manually</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  }
+
+  <!-- STEP 2: Target + recurrence -->
+  @if (step() === 2) {
+    <div class="step">
+      <div class="section-label">Enter target as</div>
+      <mat-radio-group
+        class="radio-group radio-group--inline"
+        [ngModel]="targetPer()"
+        (ngModelChange)="targetPer.set($event)"
+      >
+        <mat-radio-button value="DAY">Per day</mat-radio-button>
+        <mat-radio-button value="WEEK">Per week</mat-radio-button>
+        <mat-radio-button value="MONTH">Per month</mat-radio-button>
+      </mat-radio-group>
+      <div class="section-label">
+        Target ({{ measureType() === 'TIME' ? 'hours' : 'times' }} per
+        {{ targetPer() === 'DAY' ? 'day' : targetPer() === 'WEEK' ? 'week' : 'month' }})
+      </div>
+      <mat-form-field
+        appearance="outline"
+        class="small-field"
+      >
+        <input
+          matInput
+          type="number"
+          [min]="measureType() === 'TIME' ? 0.5 : 1"
+          [step]="measureType() === 'TIME' ? 0.5 : 1"
+          [ngModel]="targetValue()"
+          (ngModelChange)="targetValue.set(+$event)"
+        />
+      </mat-form-field>
+
+      @if (doesRepeat()) {
+        <div class="section-label">Recurring task</div>
+        <mat-form-field
+          appearance="outline"
+          class="full-width"
+        >
+          <mat-label>Task name</mat-label>
+          <input
+            matInput
+            [ngModel]="taskTitle()"
+            (ngModelChange)="onTaskTitleChange($event)"
+            placeholder="e.g. Drink 1 gallon of water"
+          />
+        </mat-form-field>
+        <div class="section-label">Repeat on</div>
+        <div class="day-picker">
+          @for (day of dayOptions; track day.key) {
+            <button
+              type="button"
+              class="day-chip"
+              [class.active]="repeatDays()[day.key]"
+              (click)="toggleDay(day.key)"
+            >
+              {{ day.label }}
+            </button>
+          }
+        </div>
+        <mat-form-field
+          appearance="outline"
+          class="small-field"
+        >
+          <mat-label>Session length (min)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="5"
+            step="5"
+            [ngModel]="sessionDurationMin()"
+            (ngModelChange)="sessionDurationMin.set(+$event)"
+          />
+        </mat-form-field>
+        @if (wizardMathSummary()) {
+          <div class="wizard-math">{{ wizardMathSummary() }}</div>
+        }
+      }
+    </div>
+  }
+
+  <!-- STEP 3: Preview -->
+  @if (step() === 3) {
+    <div class="step">
+      <div class="section-label">I'll create</div>
+      <div class="preview-list">
+        @for (level of cascadeGoals(); track level.horizon) {
+          <div class="preview-item">
+            <mat-checkbox
+              [checked]="isLevelSelected(level.horizon)"
+              (change)="toggleLevel(level.horizon)"
+            ></mat-checkbox>
+            <div class="preview-item-info">
+              <span class="preview-horizon">{{ level.horizon | lowercase }}</span>
+              <span class="preview-title">{{ level.title }}</span>
+              @if (level.targetMs) {
+                <span class="preview-target">{{ msToHours(level.targetMs) }}h</span>
+              }
+              @if (level.targetCount) {
+                <span class="preview-target">{{ level.targetCount }}×</span>
+              }
+            </div>
+          </div>
+        }
+        @if (doesRepeat() && taskTitle()) {
+          <div class="preview-item preview-task">
+            <mat-checkbox
+              [checked]="true"
+              [disabled]="true"
+            ></mat-checkbox>
+            <div class="preview-item-info">
+              <span class="preview-horizon">task</span>
+              <span class="preview-title">{{ taskTitle() }}</span>
+              <span class="preview-target">
+                {{ repeatDaysSummary() }} · {{ sessionDurationMin() }}min
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (step() > 1) {
+    <button
+      mat-button
+      (click)="back()"
+    >
+      Back
+    </button>
+  }
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    Cancel
+  </button>
+  @if (step() < 3) {
+    <button
+      mat-flat-button
+      [disabled]="!canGoNext()"
+      (click)="next()"
+    >
+      Next
+    </button>
+  } @else {
+    <button
+      mat-flat-button
+      [disabled]="cascadeGoals().length === 0"
+      (click)="submit()"
+    >
+      Create
+    </button>
+  }
+</mat-dialog-actions>

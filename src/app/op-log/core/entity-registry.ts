@@ -93,6 +93,7 @@ import {
   adapter as sectionAdapter,
   selectEntities as selectSectionEntitiesFromAdapter,
 } from '../../features/section/store/section.reducer';
+import { GOAL_FEATURE_NAME, goalAdapter } from '../../features/goal/store/goal.reducer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IMPORTS - Selectors
@@ -149,6 +150,10 @@ import {
   selectSectionFeatureState,
   selectSectionById,
 } from '../../features/section/store/section.selectors';
+import {
+  selectGoalEntities,
+  selectGoalById,
+} from '../../features/goal/store/goal.selectors';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENTITY CONFIGS
@@ -265,6 +270,15 @@ export const buildEntityRegistry = (): EntityRegistry<EntityType> =>
         selectSectionEntitiesFromAdapter,
       ),
       selectById: selectSectionById,
+    },
+
+    GOAL: {
+      storagePattern: 'adapter',
+      featureName: GOAL_FEATURE_NAME,
+      payloadKey: 'goal',
+      adapter: goalAdapter,
+      selectEntities: selectGoalEntities,
+      selectById: selectGoalById,
     },
 
     // ── SINGLETON ENTITIES ─────────────────────────────────────────────────────

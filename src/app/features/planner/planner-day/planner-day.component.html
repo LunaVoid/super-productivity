@@ -94,7 +94,6 @@
   <div
     class="scheduled-items"
     cdkDropList
-    cdkDropListSortingDisabled
     [cdkDropListData]="day.dayDate"
     [cdkDropListAutoScrollStep]="8"
     (cdkDropListDropped)="drop('SCHEDULED', day.scheduledIItems, $event)"

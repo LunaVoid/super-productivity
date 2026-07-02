@@ -32,6 +32,7 @@ export const ENTITY_TYPES = [
   'PLUGIN_USER_DATA',
   'PLUGIN_METADATA',
   'MIGRATION',
+  'GOAL',
   'RECOVERY', // For disaster recovery imports
   'ALL', // For full state imports (sync, backup)
 ] as const;

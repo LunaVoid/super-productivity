@@ -26,6 +26,13 @@ export enum ActionType {
   BOARDS_UPDATE_PANEL_TASK_IDS = '[Boards] Update Panel Cfg TaskIds',
   BOARDS_SORT = '[Boards] Sort Boards',
 
+  // Goal actions (F)
+  GOAL_ADD = '[Goal] Add Goal',
+  GOAL_UPDATE = '[Goal] Update Goal',
+  GOAL_DELETE = '[Goal] Delete Goal',
+  GOAL_LINK_TASK = '[Goal] Link Task to Goal',
+  GOAL_UNLINK_TASK = '[Goal] Unlink Task from Goal',
+
   // GlobalConfig actions (C)
   GLOBAL_CONFIG_UPDATE_SECTION = '[Global Config] Update Global Config Section',
 

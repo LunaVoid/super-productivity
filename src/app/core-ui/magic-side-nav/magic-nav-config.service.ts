@@ -434,6 +434,14 @@ export class MagicNavConfigService {
       });
     }
 
+    items.push({
+      type: 'route',
+      id: 'goals',
+      label: T.MH.GOALS,
+      icon: 'flag',
+      route: '/goals',
+    });
+
     if (this.isHabitsEnabled()) {
       items.push({
         type: 'route',

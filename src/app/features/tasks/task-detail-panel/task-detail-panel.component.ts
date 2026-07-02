@@ -73,6 +73,7 @@ import { IssueContentComponent } from '../../issue/issue-content/issue-content.c
 import { InlineMarkdownComponent } from '../../../ui/inline-markdown/inline-markdown.component';
 import { TaskAttachmentListComponent } from '../task-attachment/task-attachment-list/task-attachment-list.component';
 import { TagEditComponent } from '../../tag/tag-edit/tag-edit.component';
+import { GoalSelectComponent } from '../../goal/goal-select/goal-select.component';
 import { DialogSelectDateTimeComponent } from '../dialog-select-date-time/dialog-select-date-time.component';
 import { LocaleDatePipe } from 'src/app/ui/pipes/locale-date.pipe';
 import { LocalDateStrPipe } from 'src/app/ui/pipes/local-date-str.pipe';
@@ -121,6 +122,7 @@ import {
     InlineMarkdownComponent,
     TaskAttachmentListComponent,
     TagEditComponent,
+    GoalSelectComponent,
     LocaleDatePipe,
     LocalDateStrPipe,
     MsToStringPipe,

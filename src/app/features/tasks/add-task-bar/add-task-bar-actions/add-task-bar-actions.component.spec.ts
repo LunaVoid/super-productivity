@@ -21,6 +21,7 @@ import { DateTimeLocale, DateTimeLocales } from 'src/app/core/locale.constants';
 import { DateService } from '../../../../core/date/date.service';
 import { TaskReminderOptionId } from '../../task.model';
 import { INBOX_PROJECT } from '../../../project/project.const';
+import { ActiveGoalService } from '../../../goal/active-goal.service';
 
 const expectedLocaleTime = (timeStr: string, locale: string): string => {
   const [hours, minutes] = timeStr.split(':').map(Number);
@@ -75,10 +76,12 @@ describe('AddTaskBarActionsComponent', () => {
     time: null,
     estimate: null,
     cleanText: null,
+    goalId: null as string | null,
   };
 
-  const mockStore = jasmine.createSpyObj('Store', ['select', 'dispatch']);
+  const mockStore = jasmine.createSpyObj('Store', ['select', 'dispatch', 'selectSignal']);
   mockStore.select.and.returnValue(of([]));
+  mockStore.selectSignal.and.returnValue(signal([]));
   const mockConfigService = (locale: DateTimeLocale): GlobalConfigService => {
     return jasmine.createSpyObj('GlobalConfigService', [], {
       localization: () => ({ timeLocale: locale }),
@@ -115,6 +118,7 @@ describe('AddTaskBarActionsComponent', () => {
       'clearTags',
       'clearEstimate',
       'toggleTag',
+      'updateGoalId',
     ]);
 
     // Set up signal properties
@@ -192,6 +196,16 @@ describe('AddTaskBarActionsComponent', () => {
         { provide: ProjectService, useValue: mockProjectService },
         { provide: TagService, useValue: mockTagService },
         { provide: MatDialog, useValue: mockMatDialog },
+        {
+          provide: ActiveGoalService,
+          useValue: jasmine.createSpyObj(
+            'ActiveGoalService',
+            ['setActiveGoal', 'clear'],
+            {
+              activeGoalId: signal<string | null>(null),
+            },
+          ),
+        },
         TranslateService,
         TranslateStore,
       ],
@@ -508,6 +522,16 @@ describe('AddTaskBarActionsComponent', () => {
           { provide: ProjectService, useValue: mockProjectService },
           { provide: TagService, useValue: mockTagService },
           { provide: MatDialog, useValue: mockMatDialog },
+          {
+            provide: ActiveGoalService,
+            useValue: jasmine.createSpyObj(
+              'ActiveGoalService',
+              ['setActiveGoal', 'clear'],
+              {
+                activeGoalId: signal<string | null>(null),
+              },
+            ),
+          },
           TranslateService,
           TranslateStore,
         ],

@@ -6,7 +6,12 @@ import {
   Input,
 } from '@angular/core';
 import { T } from '../../../t.const';
-import { PlannerDay, ScheduleItem, ScheduleItemType } from '../planner.model';
+import {
+  PlannerDay,
+  ScheduleItem,
+  ScheduleItemType,
+  UNSCHEDULED_LIST_ID,
+} from '../planner.model';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { TaskCopy } from '../../tasks/task.model';
 import { PlannerActions } from '../store/planner.actions';
@@ -104,8 +109,53 @@ export class PlannerDayComponent {
     const task = ev.item.data;
 
     if (targetList === 'SCHEDULED') {
-      if (ev.previousContainer !== ev.container) {
-        this.editTaskReminderOrReScheduleIfPossible(task, ev.container.data);
+      if (ev.previousContainer === ev.container) {
+        // Same-list reorder: swap dueWithTime between the two tasks
+        const items = allItems as ScheduleItem[];
+        const fromItem = items[ev.previousIndex];
+        const toItem = items[ev.currentIndex];
+        if (
+          fromItem?.type === ScheduleItemType.Task &&
+          toItem?.type === ScheduleItemType.Task &&
+          fromItem.task.dueWithTime &&
+          toItem.task.dueWithTime
+        ) {
+          const fromTime = fromItem.task.dueWithTime;
+          const toTime = toItem.task.dueWithTime;
+          const fromRemind = millisecondsDiffToRemindOption(
+            fromItem.task.dueWithTime,
+            fromItem.task.remindAt,
+          );
+          const toRemind = millisecondsDiffToRemindOption(
+            toItem.task.dueWithTime,
+            toItem.task.remindAt,
+          );
+          this._taskService.scheduleTask(fromItem.task, toTime, fromRemind, false);
+          this._taskService.scheduleTask(toItem.task, fromTime, toRemind, false);
+        }
+      } else {
+        // Cross-container drop into scheduled section.
+        // ev.currentIndex is unreliable here because cdkDrag is on a nested child
+        // (planner-task inside .scheduled-item), not a direct child of the cdkDropList.
+        // Instead, scan the full list for the last timed task and append after it.
+        const items = allItems as ScheduleItem[];
+        let startTime: number | null = null;
+        for (let i = items.length - 1; i >= 0; i--) {
+          const item = items[i];
+          if (item?.start && item.end) {
+            startTime = item.end;
+            break;
+          }
+        }
+        if (startTime !== null) {
+          const remindCfg = millisecondsDiffToRemindOption(startTime, null);
+          this._taskService.scheduleTask(task, startTime, remindCfg, false);
+        } else {
+          // No timed items in the section — open fresh schedule dialog
+          this._matDialog.open(DialogScheduleTaskComponent, {
+            data: { task, targetDay: ev.container.data },
+          });
+        }
       }
       return;
     } else if (targetList === 'TODO') {
@@ -127,6 +177,38 @@ export class PlannerDayComponent {
           );
         }
       } else {
+        // When dragging from Unscheduled into a day column, offer to schedule with a time.
+        // Find the last timed item in this day's scheduled section and append after it.
+        if (ev.previousContainer.data === UNSCHEDULED_LIST_ID) {
+          const scheduledItems = this.day.scheduledIItems;
+          let startTime: number | null = null;
+          for (let i = scheduledItems.length - 1; i >= 0; i--) {
+            const item = scheduledItems[i];
+            if (item?.start && item.end) {
+              startTime = item.end;
+              break;
+            }
+          }
+          if (startTime !== null) {
+            const remindCfg = millisecondsDiffToRemindOption(startTime, null);
+            this._taskService.scheduleTask(task, startTime, remindCfg, false);
+          } else {
+            // No timed items yet — plan the task for this day and open the schedule dialog
+            this._store.dispatch(
+              PlannerActions.planTaskForDay({
+                task,
+                day: newDay,
+                isAddToTop: false,
+                isShowSnack: false,
+              }),
+            );
+            this._matDialog.open(DialogScheduleTaskComponent, {
+              data: { task, targetDay: newDay },
+            });
+          }
+          return;
+        }
+
         this._store.dispatch(
           PlannerActions.transferTask({
             task: task,

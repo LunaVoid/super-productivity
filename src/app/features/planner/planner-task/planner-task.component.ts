@@ -120,6 +120,20 @@ export class PlannerTaskComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  get isDeadlineSoon(): boolean {
+    const d = this.task?.deadlineDay;
+    if (!d) return false;
+    const daysUntil = (new Date(d).getTime() - Date.now()) / 86400000;
+    return daysUntil >= 0 && daysUntil <= 7;
+  }
+
+  get deadlineDayLabel(): string {
+    const d = this.task?.deadlineDay;
+    if (!d) return '';
+    const [, month, day] = d.split('-');
+    return `${parseInt(month)}/${parseInt(day)}`;
+  }
+
   get timeEstimate(): number {
     const t = this.task;
     return this.task.subTaskIds

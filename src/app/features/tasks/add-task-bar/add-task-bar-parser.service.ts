@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Project } from '../../project/project.model';
 import { Tag } from '../../tag/tag.model';
+import { Goal } from '../../goal/goal.model';
 import { AddTaskBarStateService } from './add-task-bar-state.service';
 import { SHORT_SYNTAX_TIME_REG_EX, shortSyntax } from '../short-syntax';
 import { ShortSyntaxConfig } from '../../config/global-config.model';
@@ -23,6 +24,7 @@ interface PreviousParseResult {
   deadlineTime: string | null;
   deadlineRemindOption: TaskReminderOptionId | null;
   isDeadlineFromSyntax: boolean;
+  goalId: string | null;
 }
 
 @Injectable()
@@ -41,12 +43,55 @@ export class AddTaskBarParserService {
     return a === b;
   }
 
+  /** Extract `!word` goal tokens from text, match against goals list (prefix, case-insensitive).
+   *  Returns the matched goalId (or null) and the cleaned text with matched tokens removed. */
+  parseGoalFromText(
+    text: string,
+    allGoals: Goal[],
+  ): { goalId: string | null; cleanedText: string } {
+    if (!allGoals.length) {
+      return { goalId: null, cleanedText: text };
+    }
+    // Find all `!word` tokens — but exclude date-like tokens (e.g. !2024-01-01, !today, !16:30)
+    // that would be consumed by the deadline short-syntax.
+    // We consider a token a goal token only when it matches at least one goal prefix.
+    const goalTokenRegex = /\s*![a-zA-Z][a-zA-Z0-9_-]*/g;
+    let goalId: string | null = null;
+    let cleanedText = text;
+
+    const HORIZON_PRIORITY: Record<string, number> = {
+      WEEKLY: 0,
+      DAILY: 1,
+      MONTHLY: 2,
+      YEARLY: 3,
+    };
+
+    const matches = [...text.matchAll(goalTokenRegex)];
+    for (const match of matches) {
+      const token = match[0].replace(/^\s*!/, '').toLowerCase();
+      const candidates = allGoals.filter((g) => g.title.toLowerCase().startsWith(token));
+      if (candidates.length > 0) {
+        // Prefer WEEKLY > DAILY > MONTHLY > YEARLY
+        candidates.sort(
+          (a, b) =>
+            (HORIZON_PRIORITY[a.horizon] ?? 99) - (HORIZON_PRIORITY[b.horizon] ?? 99),
+        );
+        goalId = candidates[0].id;
+      }
+      // Always strip !word tokens from text regardless of whether they match a goal
+      cleanedText = cleanedText.replace(match[0], '').replace(/\s+/g, ' ').trim();
+    }
+
+    return { goalId, cleanedText };
+  }
+
   async parseAndUpdateText(
     text: string,
     config: ShortSyntaxConfig | null,
     allProjects: Project[],
     allTags: Tag[],
     defaultProject: Project,
+    allGoals: Goal[],
     defaultDate?: string,
     defaultTime?: string,
   ): Promise<void> {
@@ -66,10 +111,14 @@ export class AddTaskBarParserService {
       return;
     }
 
+    // Extract !goal-name tokens before passing to short-syntax (which uses ! for deadlines)
+    const { goalId: parsedGoalId, cleanedText: textForShortSyntax } =
+      this.parseGoalFromText(text, allGoals);
+
     // Get current tags from state to preserve pre-selected tags
     const currentState = this._stateService.state();
     const parseResult = await shortSyntax(
-      { title: text, tagIds: currentState.tagIdsFromTxt },
+      { title: textForShortSyntax, tagIds: currentState.tagIdsFromTxt },
       config,
       allTags,
       allProjects,
@@ -102,7 +151,7 @@ export class AddTaskBarParserService {
       // Preserve current user-selected values instead of falling back to defaults
 
       currentResult = {
-        cleanText: text,
+        cleanText: textForShortSyntax,
         projectId: this._stateService.isAutoDetected()
           ? defaultProject?.id || null
           : null,
@@ -121,6 +170,7 @@ export class AddTaskBarParserService {
           ? null
           : currentState.deadlineRemindOption || null,
         isDeadlineFromSyntax: false,
+        goalId: parsedGoalId,
       };
     } else {
       // Extract parsed values
@@ -184,7 +234,7 @@ export class AddTaskBarParserService {
       }
 
       currentResult = {
-        cleanText: parseResult.taskChanges.title || text,
+        cleanText: parseResult.taskChanges.title || textForShortSyntax,
         projectId: parseResult.projectId || null,
         tagIds: tagIds,
         newTagTitles: newTagTitles,
@@ -197,6 +247,7 @@ export class AddTaskBarParserService {
         deadlineTime: deadlineTime,
         deadlineRemindOption: deadlineRemindOption,
         isDeadlineFromSyntax: hasParsedDeadline,
+        goalId: parsedGoalId,
       };
     }
 
@@ -306,6 +357,13 @@ export class AddTaskBarParserService {
       currentState.deadlineRemindOption !== currentResult.deadlineRemindOption
     ) {
       this._stateService.updateDeadlineRemindOption(currentResult.deadlineRemindOption);
+    }
+
+    if (
+      !this._previousParseResult ||
+      this._previousParseResult.goalId !== currentResult.goalId
+    ) {
+      this._stateService.updateGoalId(currentResult.goalId);
     }
 
     // Store current result as previous for next comparison

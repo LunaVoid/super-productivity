@@ -14,6 +14,7 @@ import { IssueProviderState } from '../../features/issue/issue.model';
 import { BoardsState } from '../../features/boards/store/boards.reducer';
 import { MenuTreeState } from '../../features/menu-tree/store/menu-tree.model';
 import { SectionState } from '../../features/section/section.model';
+import { GoalState } from '../../features/goal/goal.model';
 
 export interface AppBaseWithoutLastSyncModelChange {
   project: ProjectState;
@@ -32,6 +33,7 @@ export interface AppBaseWithoutLastSyncModelChange {
   simpleCounter: SimpleCounterState;
   taskRepeatCfg: TaskRepeatCfgState;
   section: SectionState;
+  goal: GoalState;
 }
 
 export interface AppMainFileNoRevsData extends AppBaseWithoutLastSyncModelChange {

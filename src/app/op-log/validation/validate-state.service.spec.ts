@@ -15,6 +15,7 @@ import {
   MenuTreeKind,
   MenuTreeState,
 } from '../../features/menu-tree/store/menu-tree.model';
+import { initialGoalState } from '../../features/goal/store/goal.reducer';
 import { environment } from '../../../environments/environment';
 import { LS } from '../../core/persistence/storage-keys.const';
 
@@ -43,6 +44,7 @@ describe('ValidateStateService', () => {
     globalConfig: DEFAULT_GLOBAL_CONFIG,
     timeTracking: initialTimeTrackingState,
     reminders: [],
+    goal: initialGoalState,
     pluginUserData: [],
     pluginMetadata: [],
     archiveYoung: {

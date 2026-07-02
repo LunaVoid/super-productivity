@@ -81,6 +81,7 @@ import { OnboardingHintComponent } from './features/onboarding/onboarding-hint.c
 import { OnboardingHintService } from './features/onboarding/onboarding-hint.service';
 import { MaterialIconsLoaderService } from './ui/material-icons-loader.service';
 import { BrowserTitleService } from './core/browser-title/browser-title.service';
+import { ActiveGoalService } from './features/goal/active-goal.service';
 
 const ONBOARDING_PRESET_EXIT_DELAY = 1000;
 const ONBOARDING_ENTRANCE_COMPLETE_DELAY = 2000;
@@ -162,10 +163,17 @@ export class AppComponent implements OnDestroy, AfterViewInit {
   readonly _store = inject(Store);
   private _sectionService = inject(SectionService);
   private _browserTitleService = inject(BrowserTitleService);
+  readonly _activeGoalService = inject(ActiveGoalService);
   private _hasShownLegacyFileBgSnack = false;
   readonly T = T;
   readonly TODAY_TAG_ID = TODAY_TAG.id;
   readonly isShowMobileButtonNav = this.layoutService.isShowMobileBottomNav;
+
+  /** When a goal is active, pre-link new tasks created via the global add-task bar. */
+  readonly goalAdditionalFields = computed(() => {
+    const goalId = this._activeGoalService.activeGoalId();
+    return goalId ? { goalId } : undefined;
+  });
 
   @ViewChild('routeWrapper', { read: ElementRef }) routeWrapper?: ElementRef<HTMLElement>;
   @ViewChild(RouterOutlet) private _routerOutlet?: RouterOutlet;

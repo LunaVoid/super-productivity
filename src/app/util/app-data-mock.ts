@@ -2,6 +2,7 @@ import { DEFAULT_GLOBAL_CONFIG } from '../features/config/default-global-config.
 import { createEmptyEntity } from './create-empty-entity';
 import { AppDataComplete } from '../op-log/model/model-config';
 import { initialTimeTrackingState } from '../features/time-tracking/store/time-tracking.reducer';
+import { initialGoalState } from '../features/goal/store/goal.reducer';
 
 export const createAppDataCompleteMock = (): AppDataComplete => ({
   project: {
@@ -24,6 +25,7 @@ export const createAppDataCompleteMock = (): AppDataComplete => ({
   },
   tag: createEmptyEntity(),
   section: createEmptyEntity(),
+  goal: initialGoalState,
   simpleCounter: {
     ...createEmptyEntity(),
     ids: [],

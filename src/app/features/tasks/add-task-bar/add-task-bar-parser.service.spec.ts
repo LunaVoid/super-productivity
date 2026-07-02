@@ -23,6 +23,7 @@ describe('AddTaskBarParserService', () => {
       'updateAttachments',
       'updateDeadline',
       'updateDeadlineRemindOption',
+      'updateGoalId',
       'isAutoDetected',
       'state',
     ]);
@@ -42,6 +43,7 @@ describe('AddTaskBarParserService', () => {
       deadlineDate: null,
       deadlineTime: null,
       deadlineRemindOption: null,
+      goalId: null,
     };
     mockStateServiceSpy.state.and.returnValue(defaultMockState);
 
@@ -103,12 +105,12 @@ describe('AddTaskBarParserService', () => {
     });
 
     it('should handle empty text', async () => {
-      await service.parseAndUpdateText('', null, [], [], null as any);
+      await service.parseAndUpdateText('', null, [], [], null as any, []);
       expect(mockStateService.updateCleanText).not.toHaveBeenCalled();
     });
 
     it('should handle null config', async () => {
-      await service.parseAndUpdateText('test task', null, [], [], null as any);
+      await service.parseAndUpdateText('test task', null, [], [], null as any, []);
       expect(mockStateService.updateCleanText).not.toHaveBeenCalled();
     });
 
@@ -119,6 +121,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       service.resetPreviousResult();
@@ -146,6 +149,7 @@ describe('AddTaskBarParserService', () => {
           remindOption: null,
           attachments: [],
           repeatQuickSetting: null,
+          goalId: null,
         };
         mockStateService.state.and.returnValue(mockState);
 
@@ -155,6 +159,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
           defaultDate,
           defaultTime,
         );
@@ -184,6 +189,7 @@ describe('AddTaskBarParserService', () => {
           remindOption: null,
           attachments: [],
           repeatQuickSetting: null,
+          goalId: null,
         };
         mockStateService.state.and.returnValue(mockState);
 
@@ -193,6 +199,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDate).toHaveBeenCalled();
@@ -219,6 +226,7 @@ describe('AddTaskBarParserService', () => {
           remindOption: null,
           attachments: [],
           repeatQuickSetting: null,
+          goalId: null,
         };
         mockStateService.state.and.returnValue(mockState);
 
@@ -228,6 +236,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
           undefined, // no default date
           defaultTime,
         );
@@ -245,6 +254,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDate).toHaveBeenCalled();
@@ -262,6 +272,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDate).toHaveBeenCalled();
@@ -278,6 +289,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
           defaultDate,
           defaultTime,
         );
@@ -306,6 +318,7 @@ describe('AddTaskBarParserService', () => {
           remindOption: null,
           attachments: [],
           repeatQuickSetting: null,
+          goalId: null,
         });
 
         await service.parseAndUpdateText(
@@ -314,6 +327,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
           defaultDate,
           defaultTime,
         );
@@ -338,6 +352,7 @@ describe('AddTaskBarParserService', () => {
           remindOption: null,
           attachments: [],
           repeatQuickSetting: null,
+          goalId: null,
         });
 
         await service.parseAndUpdateText(
@@ -346,6 +361,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
           defaultDate,
         );
 
@@ -362,6 +378,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalled();
@@ -379,6 +396,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(null, null);
@@ -392,6 +410,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalled();
@@ -422,6 +441,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(
@@ -441,6 +461,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         // Run 2: user removes the syntax — previousParseResult flips
@@ -467,6 +488,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         // Run 3: user has now manually set a deadline via the dialog and
@@ -492,6 +514,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(
@@ -510,6 +533,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
         const [parsedDeadlineDate, parsedDeadlineTime] =
           mockStateService.updateDeadline.calls.mostRecent().args;
@@ -536,6 +560,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(null, null);
@@ -548,6 +573,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         mockStateService.updateDeadline.calls.reset();
@@ -559,6 +585,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(null, null);
@@ -572,6 +599,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
         const [parsedDeadlineDate, parsedDeadlineTime] =
           mockStateService.updateDeadline.calls.mostRecent().args;
@@ -598,6 +626,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateDeadline).toHaveBeenCalledWith(null, null);
@@ -613,6 +642,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateEstimate).toHaveBeenCalled();
@@ -625,6 +655,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateEstimate).not.toHaveBeenCalled();
@@ -642,6 +673,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateEstimate).not.toHaveBeenCalled();
@@ -654,6 +686,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateSpent).toHaveBeenCalled();
@@ -666,6 +699,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateSpent).toHaveBeenCalledWith(null);
@@ -680,6 +714,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateTagIdsFromTxt).toHaveBeenCalled();
@@ -695,6 +730,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         // Should call update methods
@@ -709,6 +745,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateCleanText).toHaveBeenCalledWith('Task text');
@@ -724,6 +761,7 @@ describe('AddTaskBarParserService', () => {
             mockProjects,
             mockTags,
             mockDefaultProject,
+            [],
           ),
         ).not.toBeRejected();
       });
@@ -735,6 +773,7 @@ describe('AddTaskBarParserService', () => {
           [],
           [],
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateTagIdsFromTxt).toHaveBeenCalled();
@@ -748,6 +787,7 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
+          [],
         );
 
         expect(mockStateService.updateCleanText).toHaveBeenCalled();
@@ -982,6 +1022,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -991,6 +1032,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
         dateStr,
         timeStr,
       );
@@ -1017,6 +1059,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1026,6 +1069,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
         springDateStr,
         springTimeStr,
       );
@@ -1054,6 +1098,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1063,6 +1108,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
         newYearDateStr,
         newYearTimeStr,
       );
@@ -1089,6 +1135,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1098,6 +1145,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
         dateStr,
         undefined,
       );
@@ -1123,6 +1171,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1132,6 +1181,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
         dateStr,
         midnightTime,
       );
@@ -1241,6 +1291,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1250,6 +1301,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1275,6 +1327,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1284,6 +1337,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1309,6 +1363,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1318,6 +1373,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1341,6 +1397,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1350,6 +1407,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1374,6 +1432,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1386,6 +1445,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         tagsWithUrgent,
         mockDefaultProject,
+        [],
       );
 
       // Should extract URL
@@ -1417,6 +1477,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1426,6 +1487,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).not.toHaveBeenCalled();
@@ -1445,6 +1507,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1455,6 +1518,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1470,6 +1534,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(2);
@@ -1493,6 +1558,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1503,6 +1569,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);
@@ -1514,6 +1581,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(2);
@@ -1535,6 +1603,7 @@ describe('AddTaskBarParserService', () => {
         remindOption: null,
         attachments: [],
         repeatQuickSetting: null,
+        goalId: null,
       };
       mockStateService.state.and.returnValue(mockState);
 
@@ -1544,6 +1613,7 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
+        [],
       );
 
       expect(mockStateService.updateAttachments).toHaveBeenCalledTimes(1);

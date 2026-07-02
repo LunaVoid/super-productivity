@@ -50,6 +50,11 @@
               [isShowProjectTagNever]="isInSubTaskList()"
             ></tag-list>
           }
+          @if (goalTitle()) {
+            <span class="goal-badge">
+              <mat-icon class="goal-badge__icon">flag</mat-icon>{{ goalTitle() }}
+            </span>
+          }
         </div>
       </div>
 

@@ -171,6 +171,14 @@ export class AddTaskBarStateService {
     this._taskInputState.update((state) => ({ ...state, deadlineRemindOption }));
   }
 
+  updateGoalId(goalId: string | null): void {
+    this._taskInputState.update((s) => ({ ...s, goalId }));
+  }
+
+  clearGoalId(): void {
+    this._taskInputState.update((s) => ({ ...s, goalId: null }));
+  }
+
   clearDeadline(cleanedInputTxt?: string): void {
     this._taskInputState.update((state) => ({
       ...state,
@@ -196,6 +204,7 @@ export class AddTaskBarStateService {
       deadlineDate: null,
       deadlineTime: null,
       deadlineRemindOption: null,
+      goalId: null,
     }));
     this.inputTxt.set('');
     // Clear the note text but keep the panel expanded so consecutive

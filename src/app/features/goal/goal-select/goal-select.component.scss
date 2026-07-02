@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+mat-select {
+  width: 100%;
+  font-size: 14px;
+
+  // Match task-detail-panel value color
+  ::ng-deep .mat-mdc-select-value {
+    color: var(--task-detail-value-color, rgba(0, 0, 0, 0.54));
+    text-align: right;
+  }
+
+  // Remove the underline / bottom border from the standalone select
+  ::ng-deep .mat-mdc-select-trigger {
+    padding: 0;
+  }
+
+  // Align arrow to look compact
+  ::ng-deep .mat-mdc-select-arrow-wrapper {
+    transform: none;
+  }
+}

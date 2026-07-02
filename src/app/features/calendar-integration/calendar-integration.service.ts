@@ -30,7 +30,9 @@ import { fastArrayCompare } from '../../util/fast-array-compare';
 import {
   isCalendarIssueTask,
   selectAllCalendarTaskEventIds,
+  selectAllCalendarIssueTasks,
 } from '../tasks/store/task.selectors';
+import { Task } from '../tasks/task.model';
 import { loadFromRealLs, saveToRealLs } from '../../core/persistence/local-storage';
 import { LS } from '../../core/persistence/storage-keys.const';
 import { Store } from '@ngrx/store';
@@ -154,6 +156,54 @@ export class CalendarIntegrationService {
 
   triggerRefresh(): void {
     this._refreshTrigger$.next();
+  }
+
+  /**
+   * Compares fresh calendar events against existing calendar tasks and returns
+   * tasks whose scheduled time has changed in the calendar provider.
+   * Used by CalendarSyncPollEffects to detect GCal moves and patch task dueWithTime.
+   */
+  syncCalendarEventChangesToTasks(): Observable<
+    { task: Task; newDueWithTime: number }[]
+  > {
+    return combineLatest([
+      this.calendarEvents$.pipe(first()),
+      this._store.select(selectAllCalendarIssueTasks).pipe(first()),
+    ]).pipe(
+      map(([calendarEntries, calendarTasks]) => {
+        // Build a flat map of event id → start time from fresh events
+        const eventStartMap = new Map<string, number>();
+        for (const entry of calendarEntries) {
+          for (const event of entry.items) {
+            eventStartMap.set(event.id, event.start);
+            // Also map legacy ids so tasks created before an id migration are found
+            if ((event as CalendarIntegrationEvent).legacyIds) {
+              for (const legacyId of (event as CalendarIntegrationEvent).legacyIds!) {
+                eventStartMap.set(legacyId, event.start);
+              }
+            }
+          }
+        }
+
+        const diffs: { task: Task; newDueWithTime: number }[] = [];
+        for (const task of calendarTasks) {
+          if (!task.issueId) {
+            continue;
+          }
+          const freshStart = eventStartMap.get(task.issueId);
+          if (freshStart == null) {
+            // Event not in fresh data — skip (could be outside the fetch window)
+            continue;
+          }
+          const existingDueWithTime = task.dueWithTime;
+          // Only emit if the start time actually changed
+          if (existingDueWithTime != null && existingDueWithTime !== freshStart) {
+            diffs.push({ task, newDueWithTime: freshStart });
+          }
+        }
+        return diffs;
+      }),
+    );
   }
 
   private _fetchAllCombined(

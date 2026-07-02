@@ -70,6 +70,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import {
   selectLaterTodayTasksWithSubTasks,
   selectOverdueTasksWithSubTasks,
+  selectThisWeekTasks,
 } from '../tasks/store/task.selectors';
 import {
   selectStartOfNextDayDiffMs,
@@ -79,6 +80,7 @@ import { CalendarIntegrationService } from '../calendar-integration/calendar-int
 import { PlannerCalendarEventComponent } from '../planner/planner-calendar-event/planner-calendar-event.component';
 import { ScheduleCalendarMapEntry } from '../schedule/schedule.model';
 import { getLaterTodayCalendarEvents } from './get-later-today-calendar-events';
+import { getThisWeekCalendarEvents } from './get-this-week-calendar-events';
 import { CollapsibleComponent } from '../../ui/collapsible/collapsible.component';
 import { SnackService } from '../../core/snack/snack.service';
 import { GlobalConfigService } from '../config/global-config.service';
@@ -210,6 +212,9 @@ export class WorkViewComponent implements OnInit, OnDestroy {
   laterTodayTasks = toSignal(this._store.select(selectLaterTodayTasksWithSubTasks), {
     initialValue: [],
   });
+  thisWeekTasks = toSignal(this._store.select(selectThisWeekTasks), {
+    initialValue: [],
+  });
   // Calendar events are not in the store — sourced live (cached + polled,
   // shareReplay/refCount) from the calendar integration. Shown as read-only
   // outlines in the "Later Today" section, mirroring the planner.
@@ -239,6 +244,15 @@ export class WorkViewComponent implements OnInit, OnDestroy {
       Date.now(),
     );
   });
+  thisWeekCalendarEvents = computed(() => {
+    this._refreshTick();
+    return getThisWeekCalendarEvents(
+      this._calendarEventEntries(),
+      this._todayStr(),
+      this._startOfNextDayDiffMs(),
+      Date.now(),
+    );
+  });
   undoneTasks = input.required<TaskWithSubTasks[]>();
   customizedUndoneTasks = toSignal(
     this.customizerService.customizeUndoneTasks(this.workContextService.undoneTasks$),
@@ -261,6 +275,7 @@ export class WorkViewComponent implements OnInit, OnDestroy {
   isOnTodayList = toSignal(this.workContextService.isTodayList$, { initialValue: false });
   isDoneHidden = signal(!!localStorage.getItem(LS.DONE_TASKS_HIDDEN));
   isLaterTodayHidden = signal(!!localStorage.getItem(LS.LATER_TODAY_TASKS_HIDDEN));
+  isThisWeekHidden = signal(!!localStorage.getItem(LS.THIS_WEEK_TASKS_HIDDEN));
   isOverdueHidden = signal(!!localStorage.getItem(LS.OVERDUE_TASKS_HIDDEN));
   isRepeatCfgsHidden = signal(!!localStorage.getItem(LS.REPEAT_CFGS_HIDDEN));
   // Claim pool is tucked away (collapsed) by default.
@@ -431,6 +446,15 @@ export class WorkViewComponent implements OnInit, OnDestroy {
         localStorage.setItem(LS.LATER_TODAY_TASKS_HIDDEN, 'true');
       } else {
         localStorage.removeItem(LS.LATER_TODAY_TASKS_HIDDEN);
+      }
+    });
+
+    effect(() => {
+      const isHidden = this.isThisWeekHidden();
+      if (isHidden) {
+        localStorage.setItem(LS.THIS_WEEK_TASKS_HIDDEN, 'true');
+      } else {
+        localStorage.removeItem(LS.THIS_WEEK_TASKS_HIDDEN);
       }
     });
 

@@ -42,6 +42,8 @@ import {
   PluginUserDataState,
 } from '../../plugins/plugin-persistence.model';
 import { menuTreeInitialState } from '../../features/menu-tree/store/menu-tree.reducer';
+import { GoalState } from '../../features/goal/goal.model';
+import { initialGoalState } from '../../features/goal/store/goal.reducer';
 
 export const CROSS_MODEL_VERSION = 4.5 as const;
 
@@ -58,6 +60,7 @@ export type AllModelConfig = {
   tag: ModelCfg<TagState>;
   simpleCounter: ModelCfg<SimpleCounterState>;
   section: ModelCfg<SectionState>;
+  goal: ModelCfg<GoalState>;
   taskRepeatCfg: ModelCfg<TaskRepeatCfgState>;
   reminders: ModelCfg<Reminder[]>;
   timeTracking: ModelCfg<TimeTrackingState>;
@@ -96,6 +99,11 @@ export const MODEL_CONFIGS: AllModelConfig = {
   },
   section: {
     defaultData: initialSectionState,
+    isMainFileModel: true,
+    repair: fixEntityStateConsistency,
+  },
+  goal: {
+    defaultData: initialGoalState,
     isMainFileModel: true,
     repair: fixEntityStateConsistency,
   },

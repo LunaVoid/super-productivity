@@ -8,6 +8,7 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
+import { first } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { T } from '../../../t.const';
 import { PlannerDay } from '../planner.model';
@@ -16,11 +17,26 @@ import { PlannerDayComponent } from '../planner-day/planner-day.component';
 import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import {
+  selectTodayUntimedTasks,
   selectUndoneOverdue,
   selectUndoneOverdueDeadlineTasks,
+  selectUnscheduledTasks,
 } from '../../tasks/store/task.selectors';
 import { PlannerDayOverdueComponent } from '../planner-day-overdue/planner-day-overdue.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { PlannerUnscheduledComponent } from '../planner-unscheduled/planner-unscheduled.component';
+import { CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+  SmartSchedulerService,
+  SmartScheduleMode,
+} from '../smart-scheduler/smart-scheduler.service';
+import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
+import { SnackService } from '../../../core/snack/snack.service';
+import { getDbDateStr } from '../../../util/get-db-date-str';
+import { selectTimelineWorkStartEndHours } from '../../config/store/global-config.reducer';
 
 @Component({
   selector: 'planner-plan-view',
@@ -32,6 +48,12 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     AsyncPipe,
     PlannerDayOverdueComponent,
     MatProgressSpinner,
+    PlannerUnscheduledComponent,
+    CdkDropListGroup,
+    MatButton,
+    MatIconButton,
+    MatMenuModule,
+    MatIcon,
   ],
 })
 export class PlannerPlanViewComponent {
@@ -39,11 +61,20 @@ export class PlannerPlanViewComponent {
   private _store = inject(Store);
   private _destroyRef = inject(DestroyRef);
   private _elRef = inject(ElementRef);
+  private _smartScheduler = inject(SmartSchedulerService);
+  private _snackService = inject(SnackService);
 
   overdue$ = this._store.select(selectUndoneOverdue);
   overdueDeadlines$ = this._store.select(selectUndoneOverdueDeadlineTasks);
   days$: Observable<PlannerDay[]> = this._plannerService.days$;
   isLoadingMore$ = this._plannerService.isLoadingMore$;
+  readonly unscheduledTasks = this._store.selectSignal(selectUnscheduledTasks);
+  readonly todayUntimedTasks = this._store.selectSignal(selectTodayUntimedTasks);
+  readonly overdueTasksForScheduler = this._store.selectSignal(selectUndoneOverdue);
+  readonly scheduleMode = signal<SmartScheduleMode>(
+    (localStorage.getItem('smartScheduleMode') as SmartScheduleMode) ?? 'PRIORITY',
+  );
+  private readonly _workHours = this._store.selectSignal(selectTimelineWorkStartEndHours);
 
   dayElements = viewChildren(PlannerDayComponent, { read: ElementRef });
 
@@ -80,6 +111,80 @@ export class PlannerPlanViewComponent {
       this._pendingIntervals.forEach(clearInterval);
       this._plannerService.resetScrollState();
     });
+  }
+
+  scheduleDay(): void {
+    const todayStr = getDbDateStr();
+    this._plannerService
+      .getDayOnce$(todayStr)
+      .pipe(first())
+      .subscribe((today) => {
+        const scheduledItems = today?.scheduledIItems ?? [];
+        const todayUntimed = this.todayUntimedTasks();
+        const todayUntimedIds = new Set(todayUntimed.map((t) => t.id));
+        const candidates =
+          this.scheduleMode() === 'OVERDUE_FIRST'
+            ? [
+                ...this.overdueTasksForScheduler().filter(
+                  (t) => !todayUntimedIds.has(t.id),
+                ),
+                ...todayUntimed,
+              ]
+            : todayUntimed;
+        const workHours = this._workHours();
+
+        // Warn if outside configured work hours (scheduler will use 3hr fallback)
+        if (workHours) {
+          const now = Date.now();
+          const endH = Math.floor(workHours.workEnd);
+          const endM = Math.round((workHours.workEnd - endH) * 60);
+          const endTs = new Date();
+          endTs.setHours(endH, endM, 0, 0);
+          if (now > endTs.getTime()) {
+            this._snackService.open({
+              msg: `You're outside your work hours — scheduling the next 3 hours instead.`,
+              isSkipTranslate: true,
+            });
+          }
+        }
+
+        const suggestions = this._smartScheduler.suggestSchedule(
+          candidates,
+          scheduledItems,
+          workHours?.workStart ?? null,
+          workHours?.workEnd ?? null,
+          this.scheduleMode(),
+        );
+
+        if (!suggestions.length) {
+          this._snackService.open({
+            msg: 'No tasks could be scheduled — all slots are busy.',
+            isSkipTranslate: true,
+          });
+          return;
+        }
+
+        for (const suggestion of suggestions) {
+          this._store.dispatch(
+            TaskSharedActions.scheduleTaskWithTime({
+              task: suggestion.task,
+              dueWithTime: suggestion.suggestedTime,
+              isMoveToBacklog: false,
+            }),
+          );
+        }
+
+        const modeLabel = this.scheduleMode() === 'PRIORITY' ? 'by priority' : 'by fit';
+        this._snackService.open({
+          msg: `Scheduled ${suggestions.length} task(s) ${modeLabel}`,
+          isSkipTranslate: true,
+        });
+      });
+  }
+
+  setScheduleMode(mode: SmartScheduleMode): void {
+    this.scheduleMode.set(mode);
+    localStorage.setItem('smartScheduleMode', mode);
   }
 
   scrollToDay(dayDate: string): void {

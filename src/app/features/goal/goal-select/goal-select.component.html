@@ -1,0 +1,11 @@
+<mat-select
+  [ngModel]="selectedGoalId()"
+  (ngModelChange)="onGoalChange($event)"
+  placeholder="No goal"
+  [panelWidth]="null"
+>
+  <mat-option [value]="null">— No goal —</mat-option>
+  @for (goal of allGoals(); track trackByGoal($index, goal)) {
+    <mat-option [value]="goal.id">{{ goal.title }}</mat-option>
+  }
+</mat-select>

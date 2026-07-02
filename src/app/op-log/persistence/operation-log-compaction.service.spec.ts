@@ -727,6 +727,7 @@ describe('OperationLogCompactionService', () => {
         pluginUserData: 'PLUGIN_USER_DATA',
         pluginMetadata: 'PLUGIN_METADATA',
         section: 'SECTION',
+        goal: 'GOAL',
       };
 
       const missingModels: string[] = [];

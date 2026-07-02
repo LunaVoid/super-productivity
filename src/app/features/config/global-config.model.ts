@@ -352,6 +352,10 @@ export type GlobalConfigState = Readonly<{
 
   sync: SyncConfig;
   dailySummaryNote?: DailySummaryNote;
+  /** Preferred mode for the smart day scheduler: priority-based or fit-most */
+  smartScheduleMode?: 'PRIORITY' | 'FIT';
+  /** Preferred delete behavior for goals */
+  goalDeleteBehavior?: 'DELETE_ALL' | 'UNLINK';
 }>;
 
 export type GlobalConfigSectionKey = keyof GlobalConfigState | 'EMPTY';

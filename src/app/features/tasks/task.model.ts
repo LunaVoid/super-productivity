@@ -139,6 +139,7 @@ export interface TaskCopy
   parentId?: string;
   remindAt?: number;
   repeatCfgId?: string;
+  goalId?: string;
   _hideSubTasksMode?: HideSubTasksMode;
 }
 

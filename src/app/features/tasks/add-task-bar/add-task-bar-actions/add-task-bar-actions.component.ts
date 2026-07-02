@@ -9,6 +9,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { ActiveGoalService } from '../../../goal/active-goal.service';
+import { selectAllGoals } from '../../../goal/store/goal.selectors';
+import { Goal } from '../../../goal/goal.model';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -41,7 +45,7 @@ import { DateService } from '../../../../core/date/date.service';
 import { MenuTreeService } from '../../../menu-tree/menu-tree.service';
 import { SelectOptionRowComponent } from '../../../../ui/select-option-row/select-option-row.component';
 
-type MenuType = 'project' | 'tags' | 'estimate' | 'repeat';
+type MenuType = 'project' | 'tags' | 'estimate' | 'repeat' | 'goal';
 
 @Component({
   selector: 'add-task-bar-actions',
@@ -70,6 +74,8 @@ export class AddTaskBarActionsComponent {
   private _translateService = inject(TranslateService);
   private _dateService = inject(DateService);
   private _menuTreeService = inject(MenuTreeService);
+  private _activeGoalService = inject(ActiveGoalService);
+  private _store = inject(Store);
   stateService = inject(AddTaskBarStateService);
 
   T = T;
@@ -89,6 +95,7 @@ export class AddTaskBarActionsComponent {
   isTagsMenuOpen = signal<boolean>(false);
   isEstimateMenuOpen = signal<boolean>(false);
   isRepeatMenuOpen = signal<boolean>(false);
+  isGoalMenuOpen = signal<boolean>(false);
 
   // State from service
   state = computed(() => this.stateService.state());
@@ -113,6 +120,15 @@ export class AddTaskBarActionsComponent {
     () => this.state().tagIds.length > 0 || this.state().tagIdsFromTxt.length > 0,
   );
 
+  // Goal signals
+  allGoals = this._store.selectSignal(selectAllGoals);
+  activeGoalId = computed(
+    () => this.stateService.state().goalId ?? this._activeGoalService.activeGoalId(),
+  );
+  activeGoal = computed<Goal | null>(
+    () => this.allGoals().find((g) => g.id === this.activeGoalId()) ?? null,
+  );
+
   // Constants
   readonly ESTIMATE_OPTIONS = ESTIMATE_OPTIONS;
 
@@ -121,6 +137,7 @@ export class AddTaskBarActionsComponent {
   tagsMenuTrigger = viewChild('tagsMenuTrigger', { read: MatMenuTrigger });
   estimateMenuTrigger = viewChild('estimateMenuTrigger', { read: MatMenuTrigger });
   repeatMenuTrigger = viewChild('repeatMenuTrigger', { read: MatMenuTrigger });
+  goalMenuTrigger = viewChild('goalMenuTrigger', { read: MatMenuTrigger });
 
   // Computed values
   dateDisplay = computed(() => {
@@ -308,6 +325,24 @@ export class AddTaskBarActionsComponent {
     this._handleMenuClick('repeat');
   }
 
+  onGoalMenuClick(): void {
+    this._handleMenuClick('goal');
+  }
+
+  selectGoal(goalId: string | null): void {
+    this.stateService.updateGoalId(goalId);
+    if (goalId) {
+      this._activeGoalService.setActiveGoal(goalId);
+    } else {
+      this._activeGoalService.clear();
+    }
+    this.refocus.emit();
+  }
+
+  clearGoal(): void {
+    this.selectGoal(null);
+  }
+
   // Public methods to open menus programmatically
   openProjectMenu(): void {
     this._openMenuProgrammatically('project');
@@ -392,6 +427,11 @@ export class AddTaskBarActionsComponent {
         return {
           menuSignal: this.isRepeatMenuOpen,
           trigger: this.repeatMenuTrigger(),
+        };
+      case 'goal':
+        return {
+          menuSignal: this.isGoalMenuOpen,
+          trigger: this.goalMenuTrigger(),
         };
     }
   }

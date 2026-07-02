@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>Delete {{ data.goal.title }}?</h2>
+<mat-dialog-content>
+  <p>
+    This will remove <strong>{{ affectedGoals().length }} goal(s)</strong>:
+  </p>
+  <ul>
+    @for (g of affectedGoals(); track g.id) {
+      <li>
+        {{ g.title }} <span class="horizon-badge">{{ g.horizon | lowercase }}</span>
+      </li>
+    }
+  </ul>
+  <p>What should happen to linked tasks?</p>
+  <mat-radio-group
+    [value]="deleteMode()"
+    (change)="deleteMode.set($event.value)"
+  >
+    <mat-radio-button value="DELETE_ALL">Delete tasks too</mat-radio-button>
+    <mat-radio-button value="UNLINK">Keep tasks, just unlink them</mat-radio-button>
+  </mat-radio-group>
+  <mat-checkbox
+    [checked]="rememberChoice()"
+    (change)="rememberChoice.set($event.checked)"
+  >
+    Remember my choice
+  </mat-checkbox>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    (click)="cancel()"
+  >
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="warn"
+    (click)="confirm()"
+  >
+    Delete {{ affectedGoals().length }} goal(s)
+  </button>
+</mat-dialog-actions>

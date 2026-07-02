@@ -319,6 +319,43 @@
             </div>
           }
 
+          @if (thisWeekTasks().length > 0 || thisWeekCalendarEvents().length > 0) {
+            <div
+              @expand
+              class="collapsible-section"
+            >
+              <collapsible
+                [title]="
+                  (T.WW.THIS_WEEK | translate) +
+                  ' (' +
+                  (thisWeekTasks().length + thisWeekCalendarEvents().length) +
+                  ')'
+                "
+                [isExpanded]="!isThisWeekHidden()"
+                (isExpandedChange)="isThisWeekHidden.set(!$event)"
+                [isIconBefore]="true"
+                [isGroup]="true"
+              >
+                <task-list
+                  [tasks]="thisWeekTasks()"
+                  [isSortingDisabled]="true"
+                  listId="PARENT"
+                  listModelId="THIS_WEEK"
+                ></task-list>
+                @if (thisWeekCalendarEvents().length) {
+                  <div class="later-today-cal-events">
+                    @for (calEv of thisWeekCalendarEvents(); track calEv.id) {
+                      <planner-calendar-event
+                        [calendarEvent]="calEv"
+                        [showStartTime]="true"
+                      ></planner-calendar-event>
+                    }
+                  </div>
+                }
+              </collapsible>
+            </div>
+          }
+
           @if (hasDoneTasks()) {
             @let nrOfDoneArchived =
               doneTasks()?.length === 0

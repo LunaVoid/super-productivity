@@ -97,6 +97,7 @@ import { TagListComponent } from '../../tag/tag-list/tag-list.component';
 import { TagToggleMenuListComponent } from '../../tag/tag-toggle-menu-list/tag-toggle-menu-list.component';
 import { Store } from '@ngrx/store';
 import { TaskSharedActions } from '../../../root-store/meta/task-shared.actions';
+import { selectGoalEntities } from '../../goal/store/goal.selectors';
 import { environment } from '../../../../environments/environment';
 import { TODAY_TAG } from '../../tag/tag.const';
 import { GlobalTrackingIntervalService } from '../../../core/global-tracking-interval/global-tracking-interval.service';
@@ -290,6 +291,13 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   checklistProgress = computed<ChecklistProgress | null>(() =>
     getChecklistProgress(this.task().notes),
   );
+
+  private readonly _goalEntities = this._store.selectSignal(selectGoalEntities);
+  goalTitle = computed<string | null>(() => {
+    const goalId = (this.task() as TaskCopy & { goalId?: string }).goalId;
+    if (!goalId) return null;
+    return this._goalEntities()[goalId]?.title ?? null;
+  });
 
   isShowRemoveFromToday = computed(() => {
     return (

@@ -1,0 +1,119 @@
+<div class="goal-page">
+  <div class="goal-page-header">
+    <h1 class="goal-page-title">Goals</h1>
+    <button
+      mat-icon-button
+      [matTooltip]="'Export week as markdown'"
+      (click)="exportWeek()"
+    >
+      <mat-icon>download</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      [matTooltip]="'Add goal'"
+      (click)="openCreateGoalDialog()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Quick-add form -->
+  @if (showQuickAdd()) {
+    <div class="quick-add-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Goal title</mat-label>
+        <input
+          matInput
+          [ngModel]="quickAddTitle()"
+          (ngModelChange)="quickAddTitle.set($event)"
+          (keydown.enter)="submitQuickAdd()"
+          (keydown.escape)="cancelQuickAdd()"
+          autofocus
+        />
+      </mat-form-field>
+
+      @if (!isHorizonPreFilled()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Horizon</mat-label>
+          <mat-select
+            [ngModel]="quickAddHorizon()"
+            (ngModelChange)="quickAddHorizon.set($event)"
+          >
+            @for (opt of horizonOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <div class="quick-add-actions">
+        <button
+          mat-flat-button
+          (click)="submitQuickAdd()"
+        >
+          Add Goal
+        </button>
+        <button
+          mat-button
+          (click)="cancelQuickAdd()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Goal tree -->
+  <div class="goal-tree">
+    @if (rootGoals().length === 0) {
+      <div class="empty-state">
+        <mat-icon>flag</mat-icon>
+        <p>No goals yet. Add your first goal to get started.</p>
+        <button
+          mat-flat-button
+          (click)="openCreateGoalDialog('YEARLY')"
+        >
+          Add Goal
+        </button>
+      </div>
+    }
+
+    @for (goal of rootGoals(); track goal.id) {
+      <goal-tree-item
+        [goal]="goal"
+        (addChild)="openCreateGoalDialog($event.horizon)"
+      ></goal-tree-item>
+    }
+
+    <!-- Inline add buttons per horizon -->
+    <button
+      class="inline-add-btn"
+      (click)="openCreateGoalDialog('YEARLY')"
+    >
+      <mat-icon>add</mat-icon> Add yearly goal
+    </button>
+    <button
+      class="inline-add-btn"
+      (click)="openCreateGoalDialog('MONTHLY')"
+    >
+      <mat-icon>add</mat-icon> Add monthly goal
+    </button>
+    <button
+      class="inline-add-btn"
+      (click)="openCreateGoalDialog('WEEKLY')"
+    >
+      <mat-icon>add</mat-icon> Add weekly goal
+    </button>
+  </div>
+
+  @if (!hasCalendarProvider()) {
+    <div class="gcal-hint">
+      <mat-icon>calendar_today</mat-icon>
+      <span
+        >Connect your Google Calendar by clicking the
+        <strong>calendar icon in the sidebar</strong> and adding a Calendar provider
+        (paste your iCal URL) to see appointments here.</span
+      >
+    </div>
+  }
+</div>

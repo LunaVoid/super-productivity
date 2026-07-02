@@ -727,3 +727,61 @@ export const selectAllUndoneTasksWithDueDay = createSelector(
     return tasksWithDueDay.sort((a, b) => a.dueDay.localeCompare(b.dueDay));
   },
 );
+
+/** Returns the ISO week string (e.g. "2026-W26") for a YYYY-MM-DD date string. */
+const isoWeekForDayStr = (dayStr: string): string => {
+  const d = new Date(dayStr + 'T00:00:00');
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const daysDiff = (date.getTime() - yearStart.getTime()) / 86400000;
+  const weekNo = Math.ceil((daysDiff + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+};
+
+/**
+ * Tasks with dueDay in the current ISO week, excluding today's tasks and done tasks.
+ * Ordered by dueDay ascending. Used for the "This Week" section in the work view.
+ */
+export const selectThisWeekTasks = createSelector(
+  selectAllTasksInActiveProjects,
+  selectTodayStr,
+  (tasks, todayStr): TaskWithDueDay[] => {
+    if (!todayStr) return [];
+    const currentWeek = isoWeekForDayStr(todayStr);
+    return tasks
+      .filter(
+        (t): t is TaskWithDueDay =>
+          !!t.dueDay &&
+          !t.isDone &&
+          t.dueDay !== todayStr &&
+          isDBDateStr(t.dueDay) &&
+          t.dueDay > todayStr &&
+          isoWeekForDayStr(t.dueDay) === currentWeek,
+      )
+      .sort((a, b) => a.dueDay.localeCompare(b.dueDay));
+  },
+);
+
+export const selectUnscheduledTasks = createSelector(selectAllTasks, (tasks) =>
+  tasks.filter((t) => !t.isDone && !t.dueDay && !t.dueWithTime && !t.parentId),
+);
+
+/**
+ * Tasks that should be candidates for "Schedule day":
+ * - not done, no specific time set, not a subtask
+ * - either truly unscheduled (no dueDay) OR planned for today (dueDay=today) but not yet timed
+ */
+export const selectTodayUntimedTasks = createSelector(
+  selectAllTasks,
+  selectTodayStr,
+  (tasks, todayStr) =>
+    tasks.filter(
+      (t) =>
+        !t.isDone &&
+        !t.dueWithTime &&
+        !t.parentId &&
+        (!t.dueDay || t.dueDay === todayStr),
+    ),
+);

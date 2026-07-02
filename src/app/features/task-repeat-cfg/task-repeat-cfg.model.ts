@@ -95,6 +95,8 @@ export interface TaskRepeatCfgCopy {
     timeEstimate?: number;
     notes?: string;
   }[];
+  // Goal this repeat task counts toward (copied to each new task instance)
+  goalId?: string;
   // Exception list for deleted instances (ISO date strings YYYY-MM-DD)
   deletedInstanceDates?: string[];
   // When true, missed/overdue instances are silently skipped instead of being created

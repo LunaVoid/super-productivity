@@ -32,6 +32,7 @@ describe('entity-registry', () => {
     'REMINDER',
     'PLUGIN_USER_DATA',
     'PLUGIN_METADATA',
+    'GOAL',
   ];
 
   // Special operation types that should NOT have configs
@@ -48,6 +49,7 @@ describe('entity-registry', () => {
     'METRIC',
     'ISSUE_PROVIDER',
     'SECTION',
+    'GOAL',
   ];
 
   const SINGLETON_ENTITIES: EntityType[] = [
@@ -417,8 +419,8 @@ describe('entity-registry', () => {
       ];
 
       // Update this count when adding new entity types to EntityType union
-      // Current: 18 regular + 3 special = 21 total
-      expect(ALL_TESTED.length).toBe(21);
+      // Current: 19 regular + 3 special = 22 total
+      expect(ALL_TESTED.length).toBe(22);
 
       // Verify no duplicates
       const uniqueTypes = new Set(ALL_TESTED);

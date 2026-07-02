@@ -20,6 +20,7 @@ export interface AddTaskBarState {
   deadlineDate?: string | null;
   deadlineTime?: string | null;
   deadlineRemindOption?: TaskReminderOptionId | null;
+  goalId: string | null;
 }
 const M = 60 * 1000;
 const H = 60 * M;
@@ -52,6 +53,7 @@ export const INITIAL_ADD_TASK_BAR_STATE: AddTaskBarState = {
   deadlineDate: null,
   deadlineTime: null,
   deadlineRemindOption: null,
+  goalId: null,
 };
 
 export const CHRONO_SUGGESTIONS: string[] = [

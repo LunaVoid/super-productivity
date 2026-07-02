@@ -22,6 +22,8 @@ import { AppState, appStateFeatureKey } from './app-state/app-state.reducer';
 import { MenuTreeState } from '../features/menu-tree/store/menu-tree.model';
 import { TIME_TRACKING_FEATURE_KEY } from '../features/time-tracking/store/time-tracking.reducer';
 import { TimeTrackingState } from '../features/time-tracking/time-tracking.model';
+import { GOAL_FEATURE_NAME } from '../features/goal/store/goal.reducer';
+import { GoalState } from '../features/goal/goal.model';
 
 export interface RootState {
   [TASK_FEATURE_NAME]: TaskState;
@@ -36,4 +38,5 @@ export interface RootState {
   [fromPlanner.plannerFeatureKey]: PlannerState;
   [appStateFeatureKey]: AppState;
   [TIME_TRACKING_FEATURE_KEY]: TimeTrackingState;
+  [GOAL_FEATURE_NAME]: GoalState;
 }

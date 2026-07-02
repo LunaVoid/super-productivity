@@ -13,10 +13,11 @@
 <!--TODO move inside page container somehow -->
 @if (layoutService.isShowAddTaskBar()) {
   <add-task-bar
-    (closed)="layoutService.hideAddTaskBar()"
-    (done)="layoutService.hideAddTaskBar()"
+    (closed)="layoutService.hideAddTaskBar(); _activeGoalService.clear()"
+    (done)="layoutService.hideAddTaskBar(); _activeGoalService.clear()"
     (afterTaskAdd)="onTaskAdded($event)"
     [isGlobalBarVariant]="true"
+    [additionalFields]="goalAdditionalFields()"
     class="global"
   ></add-task-bar>
 }

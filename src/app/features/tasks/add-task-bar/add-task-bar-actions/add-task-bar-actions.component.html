@@ -145,6 +145,38 @@
     }
   }
 
+  <!-- Goal chip -->
+  <button
+    #goalMenuTrigger
+    mat-button
+    class="action-btn"
+    [class.has-value]="activeGoal()"
+    [class.menu-open]="isGoalMenuOpen()"
+    [matMenuTriggerFor]="goalMenu"
+    (click)="onGoalMenuClick()"
+  >
+    <mat-icon [class.hide]="activeGoal()">flag</mat-icon>
+    @if (activeGoal(); as goal) {
+      <div class="tags-display">
+        <div class="tag-item">
+          <mat-icon>flag</mat-icon>
+          <span class="tag-title">{{ goal.title }}</span>
+        </div>
+      </div>
+    } @else {
+      <span>Goal</span>
+    }
+  </button>
+  @if (activeGoal()) {
+    <button
+      mat-button
+      class="clear-btn"
+      (click)="clearGoal(); $event.stopPropagation()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+
   <button
     #estimateMenuTrigger
     mat-button
@@ -269,6 +301,25 @@
         <mat-icon>repeat</mat-icon>
       }
       {{ option.label }}
+    </button>
+  }
+</mat-menu>
+
+<mat-menu #goalMenu="matMenu">
+  <button
+    mat-menu-item
+    (click)="selectGoal(null)"
+  >
+    — No goal —
+  </button>
+  @for (goal of allGoals(); track goal.id) {
+    <button
+      mat-menu-item
+      (click)="selectGoal(goal.id)"
+      [class.selected]="activeGoalId() === goal.id"
+    >
+      <mat-icon>flag</mat-icon>
+      {{ goal.title }}
     </button>
   }
 </mat-menu>

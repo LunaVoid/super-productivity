@@ -81,9 +81,15 @@ describe('TaskDetailPanelComponent paste handler', () => {
         currentLocale: jasmine.createSpy().and.returnValue('en'),
       },
     );
-    const mockStore = jasmine.createSpyObj('Store', ['select', 'dispatch', 'pipe']);
+    const mockStore = jasmine.createSpyObj('Store', [
+      'select',
+      'dispatch',
+      'pipe',
+      'selectSignal',
+    ]);
     mockStore.select.and.returnValue(of([]));
     mockStore.pipe.and.returnValue(of([]));
+    mockStore.selectSignal.and.returnValue(jasmine.createSpy().and.returnValue([]));
 
     await TestBed.configureTestingModule({
       imports: [

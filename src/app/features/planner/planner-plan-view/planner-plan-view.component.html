@@ -1,18 +1,73 @@
-<div class="days">
-  @let overdue = overdue$ | async;
-  @let overdueDeadlines = overdueDeadlines$ | async;
-  @if (overdue?.length || overdueDeadlines?.length) {
-    <planner-day-overdue
-      [overdueTasks]="overdue"
-      [overdueDeadlineTasks]="overdueDeadlines"
-    ></planner-day-overdue>
-  }
-  @for (day of days$ | async; track day.dayDate) {
-    <planner-day [day]="day"></planner-day>
-  }
-  @if (isLoadingMore$ | async) {
-    <div class="loading-more">
-      <mat-spinner diameter="40"></mat-spinner>
+<div cdkDropListGroup>
+  <div class="days">
+    @let overdue = overdue$ | async;
+    @let overdueDeadlines = overdueDeadlines$ | async;
+    @if (overdue?.length || overdueDeadlines?.length) {
+      <planner-day-overdue
+        [overdueTasks]="overdue"
+        [overdueDeadlineTasks]="overdueDeadlines"
+      ></planner-day-overdue>
+    }
+    @for (day of days$ | async; track day.dayDate) {
+      <planner-day [day]="day"></planner-day>
+    }
+    @if (isLoadingMore$ | async) {
+      <div class="loading-more">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
+  </div>
+  @if (todayUntimedTasks().length > 0) {
+    <div class="schedule-day-btn-wrap">
+      <button
+        mat-stroked-button
+        (click)="scheduleDay()"
+      >
+        Schedule day ({{
+          scheduleMode() === 'PRIORITY'
+            ? 'Priority'
+            : scheduleMode() === 'FIT'
+              ? 'Fit'
+              : 'Overdue first'
+        }})
+      </button>
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="scheduleModeMenu"
+        aria-label="Schedule mode"
+      >
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #scheduleModeMenu="matMenu">
+        <button
+          mat-menu-item
+          (click)="setScheduleMode('PRIORITY')"
+        >
+          @if (scheduleMode() === 'PRIORITY') {
+            <mat-icon>check</mat-icon>
+          }
+          By priority (due date, age)
+        </button>
+        <button
+          mat-menu-item
+          (click)="setScheduleMode('FIT')"
+        >
+          @if (scheduleMode() === 'FIT') {
+            <mat-icon>check</mat-icon>
+          }
+          Fit most tasks (largest first)
+        </button>
+        <button
+          mat-menu-item
+          (click)="setScheduleMode('OVERDUE_FIRST')"
+        >
+          @if (scheduleMode() === 'OVERDUE_FIRST') {
+            <mat-icon>check</mat-icon>
+          }
+          Overdue first (then priority)
+        </button>
+      </mat-menu>
     </div>
   }
+  <planner-unscheduled [tasks]="unscheduledTasks()"></planner-unscheduled>
 </div>

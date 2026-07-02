@@ -393,6 +393,7 @@ export class TaskRepeatCfgService {
           notes: taskRepeatCfg.notes || '',
           dueDay,
           tagIds: taskRepeatCfg.tagIds.filter((tagId) => tagId !== TODAY_TAG.id),
+          ...(taskRepeatCfg.goalId ? { goalId: taskRepeatCfg.goalId } : {}),
         },
       }),
       isAddToBottom: taskRepeatCfg.order > 0,

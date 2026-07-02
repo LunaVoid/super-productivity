@@ -82,6 +82,7 @@ import { BodyClass } from '../../../app.constants';
 import { DEFAULT_GLOBAL_CONFIG } from '../../config/default-global-config.const';
 import { Store } from '@ngrx/store';
 import { PlannerActions } from '../../planner/store/planner.actions';
+import { selectAllGoals } from '../../goal/store/goal.selectors';
 import { DateService } from '../../../core/date/date.service';
 import { MenuTreeService } from '../../menu-tree/menu-tree.service';
 import { SelectOptionRowComponent } from '../../../ui/select-option-row/select-option-row.component';
@@ -161,6 +162,9 @@ export class AddTaskBarComponent implements AfterViewInit, OnInit, OnDestroy {
   activatedSuggestion$ = new BehaviorSubject<AddTaskSuggestion | null>(null);
   isMentionListShown = signal(false);
   isScheduleDialogOpen = signal(false);
+
+  // Goals signal
+  allGoals = this._store.selectSignal(selectAllGoals);
 
   // Computed signals for projects and tags
   projects = this._projectService.listInTreeOrderForUI;
@@ -364,6 +368,7 @@ export class AddTaskBarComponent implements AfterViewInit, OnInit, OnDestroy {
                 allProjects,
                 allTags,
                 defaultProject!,
+                this.allGoals(),
                 date,
                 time,
               ),
@@ -450,6 +455,12 @@ export class AddTaskBarComponent implements AfterViewInit, OnInit, OnDestroy {
             ? state.attachments
             : additionalFields?.attachments || [],
       };
+
+      // goalId from short-syntax parser takes precedence over additionalFields
+      const stateGoalId = state.goalId;
+      if (stateGoalId) {
+        (taskData as Record<string, unknown>).goalId = stateGoalId;
+      }
 
       const note = this.stateService.noteTxt().trim();
       if (note) {
@@ -867,6 +878,8 @@ export class AddTaskBarComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private _resetAfterAdd(): void {
     this.stateService.resetAfterAdd();
+    // resetAfterAdd already clears goalId; also clear explicitly for safety
+    this.stateService.clearGoalId();
     if (this._defaultTagIds.length > 0) {
       this.stateService.updateTagIds(this._defaultTagIds);
     }

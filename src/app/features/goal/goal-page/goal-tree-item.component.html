@@ -1,0 +1,117 @@
+<div
+  class="goal-item"
+  [class.is-expanded]="isExpanded()"
+>
+  <div class="goal-item-header">
+    <button
+      class="expand-btn"
+      mat-icon-button
+      [style.visibility]="children().length > 0 ? 'visible' : 'hidden'"
+      (click)="toggleExpanded()"
+    >
+      <mat-icon>{{ isExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+
+    <div class="goal-title-wrap">
+      <span class="goal-title">{{ goal().title }}</span>
+      <span class="goal-horizon-badge">{{ goal().horizon | lowercase }}</span>
+      @if (hasNoNextAction()) {
+        <mat-icon
+          class="no-action-warning"
+          [matTooltip]="'No tasks linked — add a task or create a habit to track progress'"
+          >warning_amber</mat-icon
+        >
+      }
+    </div>
+
+    @if (hasTarget()) {
+      <div class="goal-progress">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progressPercent()"
+        ></mat-progress-bar>
+        <span class="progress-label">{{ progressPercent() }}%</span>
+      </div>
+    }
+
+    <div class="goal-actions">
+      @if (canAddTasks()) {
+        <button
+          mat-icon-button
+          [matTooltip]="'Add task to this goal (Shift+A)'"
+          (click)="openGlobalAddTaskBar()"
+        >
+          <mat-icon>add_task</mat-icon>
+        </button>
+      }
+      @if (goal().horizon !== 'DAILY') {
+        <button
+          mat-icon-button
+          [matTooltip]="'Add child goal'"
+          (click)="onAddChild()"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      }
+      <button
+        mat-icon-button
+        [matTooltip]="'Delete goal'"
+        (click)="openDeleteConfirmation()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  @if (goal().horizon === 'WEEKLY') {
+    <div
+      class="goal-intention-inline"
+      [class.has-intention]="goal().weeklyIntention"
+      contenteditable="false"
+    >
+      @if (!isEditingIntention()) {
+        <span
+          class="intention-text"
+          [class.is-placeholder]="!goal().weeklyIntention"
+          (click)="startEditIntention()"
+          >{{ goal().weeklyIntention || "Set this week's intention..." }}</span
+        >
+      }
+      @if (isEditingIntention()) {
+        <input
+          #intentionInput
+          class="intention-input"
+          [value]="intentionDraft()"
+          (input)="intentionDraft.set($any($event.target).value)"
+          (blur)="saveIntention()"
+          (keydown.enter)="saveIntention()"
+          (keydown.escape)="cancelEditIntention()"
+          placeholder="Set this week's intention..."
+          autofocus
+        />
+      }
+    </div>
+  }
+
+  @if (isExpanded() && linkedTasks().length > 0) {
+    <div class="goal-tasks">
+      @for (task of linkedTasks(); track task.id) {
+        <div class="goal-task-item">
+          <mat-icon class="goal-task-icon">task_alt</mat-icon>
+          <span class="goal-task-title">{{ task.title }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (isExpanded() && children().length > 0) {
+    <div class="goal-children">
+      @for (child of children(); track child.id) {
+        <goal-tree-item
+          [goal]="child"
+          (addChild)="addChild.emit($event)"
+        ></goal-tree-item>
+      }
+    </div>
+  }
+</div>

@@ -56,6 +56,13 @@ export const ACTION_TYPE_TO_CODE: Record<ActionType, string> = {
   [ActionType.METRIC_UPSERT]: 'EX',
   [ActionType.METRIC_LOG_FOCUS_SESSION]: 'EL',
 
+  // Goal actions (F)
+  [ActionType.GOAL_ADD]: 'FA',
+  [ActionType.GOAL_UPDATE]: 'FU',
+  [ActionType.GOAL_DELETE]: 'FD',
+  [ActionType.GOAL_LINK_TASK]: 'FL',
+  [ActionType.GOAL_UNLINK_TASK]: 'FX',
+
   // Tag actions (G)
   [ActionType.TAG_ADD]: 'GA',
   [ActionType.TAG_UPDATE]: 'GU',

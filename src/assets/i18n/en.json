@@ -2715,6 +2715,7 @@
     "ENTER_FOCUS_MODE": "Enter focus mode",
     "FEATURE_DISABLED_SNACK": "\"{{featureName}}\" disabled. Re-enable in App Features settings.",
     "GO_TO_TASK_LIST": "Go to task list",
+    "GOALS": "Goals",
     "HABITS": "Habits",
     "HELP": "Help",
     "HM": {
@@ -3100,6 +3101,7 @@
     "FINISH_DAY": "Finish Day",
     "FINISH_DAY_TOOLTIP": "Evaluate your day, move all completed tasks to the archive (optionally) and/or plan your next day.",
     "LATER_TODAY": "Later Today",
+    "THIS_WEEK": "This Week",
     "MOVE_DONE_TO_ARCHIVE": "Move completed tasks to archive",
     "NO_DONE_TASKS": "There are currently no completed tasks",
     "NO_PLANNED_TASK_ALL_DONE": "All tasks completed",

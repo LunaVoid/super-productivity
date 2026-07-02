@@ -1,0 +1,33 @@
+<div class="unscheduled-section">
+  <button
+    class="unscheduled-header"
+    (click)="toggleExpanded()"
+  >
+    <mat-icon>{{ isExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+    <span class="unscheduled-title">Unscheduled</span>
+    <span class="unscheduled-count">{{ tasks().length }}</span>
+  </button>
+
+  @if (isExpanded()) {
+    <div
+      class="unscheduled-list"
+      cdkDropList
+      [cdkDropListData]="UNSCHEDULED_LIST_ID"
+      (cdkDropListDropped)="drop($event)"
+    >
+      @for (task of tasks(); track task.id) {
+        <planner-task
+          cdkDrag
+          [cdkDragData]="task"
+          [cdkDragStartDelay]="dragDelayForTouch()"
+          [cdkDragLockAxis]="isXs() ? 'y' : ''"
+          [task]="task"
+          [day]="UNSCHEDULED_LIST_ID"
+        ></planner-task>
+      }
+      @if (tasks().length === 0) {
+        <div class="empty-state">No unscheduled tasks</div>
+      }
+    </div>
+  }
+</div>

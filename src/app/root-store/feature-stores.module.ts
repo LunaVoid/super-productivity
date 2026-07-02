@@ -75,6 +75,7 @@ import { IosBackgroundTrackingEffects } from '../features/ios/store/ios-backgrou
 import { NextcloudDeckIssueEffects } from '../features/issue/providers/nextcloud-deck/nextcloud-deck-issue.effects';
 import { CalendarIntegrationEffects } from '../features/calendar-integration/store/calendar-integration.effects';
 import { TimeBlockSyncEffects } from '../features/calendar-integration/time-block/time-block-sync.effects';
+import { CalendarSyncPollEffects } from '../features/calendar-integration/calendar-sync-poll.effects';
 import { ElectronEffects } from '../core/electron/electron.effects';
 import { DropboxEffects } from '../imex/sync/dropbox/store/dropbox.effects';
 import { FinishDayBeforeCloseEffects } from '../features/finish-day-before-close/finish-day-before-close.effects';
@@ -106,6 +107,7 @@ import {
   REMINDER_FEATURE_NAME,
   reminderReducer,
 } from '../features/reminder/store/reminder.reducer';
+import { GOAL_FEATURE_NAME, goalReducer } from '../features/goal/store/goal.reducer';
 @NgModule({
   declarations: [],
   imports: [
@@ -143,6 +145,8 @@ import {
     EffectsModule.forFeature([SimpleCounterEffects]),
 
     StoreModule.forFeature(SECTION_FEATURE_NAME, sectionReducer),
+
+    StoreModule.forFeature(GOAL_FEATURE_NAME, goalReducer),
 
     StoreModule.forFeature(TAG_FEATURE_NAME, tagReducer),
     EffectsModule.forFeature([TagEffects]),
@@ -194,7 +198,7 @@ import {
     EffectsModule.forFeature([IssueTwoWaySyncEffects]),
     EffectsModule.forFeature([NextcloudDeckIssueEffects]),
     EffectsModule.forFeature([CalendarIntegrationEffects]),
-    EffectsModule.forFeature([TimeBlockSyncEffects]),
+    EffectsModule.forFeature([TimeBlockSyncEffects, CalendarSyncPollEffects]),
     EffectsModule.forFeature([ElectronEffects]),
     EffectsModule.forFeature([DropboxEffects]),
     EffectsModule.forFeature([FinishDayBeforeCloseEffects]),

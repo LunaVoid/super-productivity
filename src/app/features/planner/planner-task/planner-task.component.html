@@ -39,6 +39,10 @@
         ></tag-list>
       </div>
 
+      @if (isDeadlineSoon) {
+        <div class="deadline-chip"><mat-icon>flag</mat-icon>{{ deadlineDayLabel }}</div>
+      }
+
       <div
         (click)="estimateTimeClick($event)"
         [class.hasNoTimeSpentOrEstimate]="!task.timeSpent && !task.timeEstimate"
