@@ -6,6 +6,35 @@
   border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
   border-radius: 8px;
   overflow: hidden;
+
+  &.is-area {
+    border: none;
+    border-radius: 0;
+    border-top: 2px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+    margin-top: 16px;
+
+    .goal-item-header {
+      background: transparent;
+      padding-left: 0;
+    }
+
+    .goal-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .goal-horizon-badge {
+      display: none;
+    }
+
+    .goal-children {
+      margin-left: 0;
+      padding-left: 0;
+    }
+  }
 }
 
 .goal-item-header {

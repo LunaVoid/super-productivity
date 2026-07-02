@@ -17,6 +17,14 @@
       <mat-icon>download</mat-icon>
     </button>
     <button
+      mat-stroked-button
+      [matTooltip]="'Add an area to group your goals (e.g. Health, School)'"
+      (click)="openCreateAreaDialog()"
+    >
+      <mat-icon>workspaces</mat-icon>
+      Add Area
+    </button>
+    <button
       mat-icon-button
       [matTooltip]="'Add goal'"
       (click)="openCreateGoalDialog()"

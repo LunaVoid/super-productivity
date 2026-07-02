@@ -122,11 +122,13 @@ export class GoalTreeItemComponent {
     return !!(g.targetCount || g.targetMs);
   });
 
-  /** Only weekly and daily goals can have tasks added directly. */
+  /** Only weekly and daily goals can have tasks added directly. Areas cannot. */
   readonly canAddTasks = computed(() => {
     const h = this.goal().horizon;
     return h === 'WEEKLY' || h === 'DAILY';
   });
+
+  readonly isArea = computed(() => this.goal().horizon === 'AREA');
 
   toggleExpanded(): void {
     this.isExpanded.update((v) => !v);
@@ -181,6 +183,7 @@ export class GoalTreeItemComponent {
 
   onAddChild(): void {
     const horizonMap: Record<GoalHorizon, GoalHorizon> = {
+      AREA: 'YEARLY',
       YEARLY: 'MONTHLY',
       MONTHLY: 'WEEKLY',
       WEEKLY: 'DAILY',

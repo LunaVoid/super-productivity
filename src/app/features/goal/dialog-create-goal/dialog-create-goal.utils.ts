@@ -38,6 +38,7 @@ export const buildCascadeGoals = (
 
   const levels: GoalHorizon[] = ['YEARLY', 'MONTHLY', 'WEEKLY'];
   const targets: Record<GoalHorizon, number> = {
+    AREA: 0, // unused — areas are containers
     DAILY: 0, // unused — daily goals are just recurring tasks
     WEEKLY: Math.round(perDay * 7),
     MONTHLY: Math.round(perDay * 30),

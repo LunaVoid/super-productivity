@@ -1,6 +1,6 @@
 import { EntityState } from '@ngrx/entity';
 
-export type GoalHorizon = 'YEARLY' | 'MONTHLY' | 'WEEKLY' | 'DAILY';
+export type GoalHorizon = 'AREA' | 'YEARLY' | 'MONTHLY' | 'WEEKLY' | 'DAILY';
 export type GoalUnit = 'COMPLETIONS' | 'MS';
 export type MissedWeekBehavior = 'FORGIVE' | 'REDISTRIBUTE' | 'MANUAL';
 

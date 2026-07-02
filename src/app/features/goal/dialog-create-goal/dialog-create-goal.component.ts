@@ -61,6 +61,8 @@ export class DialogCreateGoalComponent {
   private readonly _dialogRef = inject(MatDialogRef<DialogCreateGoalComponent>);
   readonly data = inject<DialogCreateGoalData>(MAT_DIALOG_DATA);
 
+  readonly isAreaMode = signal(false);
+
   // Step tracking
   readonly step = signal<1 | 2 | 3>(1);
 
@@ -133,6 +135,7 @@ export class DialogCreateGoalComponent {
   });
 
   readonly canGoNext = computed(() => {
+    if (this.isAreaMode()) return this.title().trim().length > 0;
     if (this.step() === 1) return this.title().trim().length > 0;
     if (this.step() === 2) return this.targetValue() > 0;
     return this.cascadeGoals().length > 0;
@@ -191,6 +194,20 @@ export class DialogCreateGoalComponent {
 
   back(): void {
     if (this.step() > 1) this.step.update((s) => (s - 1) as 1 | 2 | 3);
+  }
+
+  submitArea(): void {
+    if (!this.title().trim()) return;
+    const goal: Goal = {
+      id: nanoid(),
+      title: this.title().trim(),
+      horizon: 'AREA',
+      linkedTaskIds: [],
+      missedWeekBehavior: 'FORGIVE',
+      created: Date.now(),
+    };
+    this._store.dispatch(addGoal({ goal }));
+    this._dialogRef.close(goal);
   }
 
   submit(): void {

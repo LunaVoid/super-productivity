@@ -82,6 +82,7 @@ import { OnboardingHintService } from './features/onboarding/onboarding-hint.ser
 import { MaterialIconsLoaderService } from './ui/material-icons-loader.service';
 import { BrowserTitleService } from './core/browser-title/browser-title.service';
 import { ActiveGoalService } from './features/goal/active-goal.service';
+import { selectLatestWeeklyReview } from './features/weekly-setup/store/weekly-setup.reducer';
 
 const ONBOARDING_PRESET_EXIT_DELAY = 1000;
 const ONBOARDING_ENTRANCE_COMPLETE_DELAY = 2000;
@@ -302,6 +303,7 @@ export class AppComponent implements OnDestroy, AfterViewInit {
         void this._noteStartupBannerService.showLastNoteIfNeeded();
         this._syncSafetyBannerService.showReminderIfNeeded();
         void this._superSyncEncryptionMigrationBannerService.showBannerIfNeeded();
+        this._showWeeklySetupBannerIfNeeded();
       });
 
     // ! For keyboard shortcuts to work correctly with any layouts (QWERTZ/AZERTY/etc) - user's keyboard layout must be presaved
@@ -559,6 +561,41 @@ export class AppComponent implements OnDestroy, AfterViewInit {
           el.classList.remove('mobile-highlight-searched-item'),
         );
       }
+    });
+  }
+
+  private _showWeeklySetupBannerIfNeeded(): void {
+    if (!this._globalConfigService.appFeatures().isGoalsEnabled) return;
+
+    const today = new Date();
+    const isSunday = today.getDay() === 0;
+    if (!isSunday) return;
+
+    const d = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const daysDiff = (d.getTime() - yearStart.getTime()) / 86400000;
+    const weekNo = Math.ceil((daysDiff + 1) / 7);
+    const currentWeekStr = `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+
+    const latestReview = this._store.selectSignal(selectLatestWeeklyReview)();
+    if (latestReview?.weekStr === currentWeekStr) return;
+
+    this._bannerService.open({
+      id: BannerId.WeeklySetup,
+      msg: "It's Sunday — set up your week!",
+      ico: 'event_note',
+      action: {
+        label: 'Set up week →',
+        fn: () => {
+          import('./features/weekly-setup/dialog-weekly-setup/dialog-weekly-setup.component').then(
+            ({ DialogWeeklySetupComponent }) => {
+              this._matDialog.open(DialogWeeklySetupComponent, { width: '600px' });
+            },
+          );
+        },
+      },
     });
   }
 }

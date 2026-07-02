@@ -1,6 +1,7 @@
 <div
   class="goal-item"
   [class.is-expanded]="isExpanded()"
+  [class.is-area]="goal().horizon === 'AREA'"
 >
   <div class="goal-item-header">
     <button
@@ -24,7 +25,7 @@
       }
     </div>
 
-    @if (hasTarget()) {
+    @if (hasTarget() && goal().horizon !== 'AREA') {
       <div class="goal-progress">
         <mat-progress-bar
           mode="determinate"

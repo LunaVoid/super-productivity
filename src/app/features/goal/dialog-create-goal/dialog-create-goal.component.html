@@ -1,8 +1,31 @@
-<h2 mat-dialog-title>New Goal</h2>
+<h2 mat-dialog-title>{{ isAreaMode() ? 'New Area' : 'New Goal' }}</h2>
 
 <mat-dialog-content>
+  <!-- AREA MODE: just a title -->
+  @if (isAreaMode()) {
+    <div class="step">
+      <p class="area-hint">
+        Areas group your goals by life theme (e.g. Health, School, Side Hustle).
+      </p>
+      <mat-form-field
+        appearance="outline"
+        class="full-width"
+      >
+        <mat-label>Area name</mat-label>
+        <input
+          matInput
+          [ngModel]="title()"
+          (ngModelChange)="title.set($event)"
+          (keydown.enter)="canGoNext() && submitArea()"
+          placeholder="e.g. Health, School, Side Hustle"
+          autofocus
+        />
+      </mat-form-field>
+    </div>
+  }
+
   <!-- STEP 1: Core info -->
-  @if (step() === 1) {
+  @if (!isAreaMode() && step() === 1) {
     <div class="step">
       <mat-form-field
         appearance="outline"
@@ -58,7 +81,7 @@
   }
 
   <!-- STEP 2: Target + recurrence -->
-  @if (step() === 2) {
+  @if (!isAreaMode() && step() === 2) {
     <div class="step">
       <div class="section-label">Enter target as</div>
       <mat-radio-group
@@ -137,7 +160,7 @@
   }
 
   <!-- STEP 3: Preview -->
-  @if (step() === 3) {
+  @if (!isAreaMode() && step() === 3) {
     <div class="step">
       <div class="section-label">I'll create</div>
       <div class="preview-list">
@@ -194,7 +217,15 @@
   >
     Cancel
   </button>
-  @if (step() < 3) {
+  @if (isAreaMode()) {
+    <button
+      mat-flat-button
+      [disabled]="!canGoNext()"
+      (click)="submitArea()"
+    >
+      Create Area
+    </button>
+  } @else if (step() < 3) {
     <button
       mat-flat-button
       [disabled]="!canGoNext()"

@@ -115,6 +115,22 @@ export const APP_FEATURES_FORM_CFG: ConfigFormSection<AppFeaturesConfig> = {
       },
     },
     {
+      key: 'isGoalsEnabled',
+      type: 'slide-toggle',
+      templateOptions: {
+        label: 'Goals',
+        icon: 'flag',
+      },
+    },
+    {
+      key: 'isProjectManagerEnabled',
+      type: 'slide-toggle',
+      templateOptions: {
+        label: 'Project Manager',
+        icon: 'folder',
+      },
+    },
+    {
       key: 'isEnableUserProfiles',
       type: 'slide-toggle',
       templateOptions: {

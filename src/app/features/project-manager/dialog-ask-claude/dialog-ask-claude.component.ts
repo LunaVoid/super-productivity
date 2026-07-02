@@ -15,12 +15,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { TaskService } from '../../tasks/task.service';
 import { ProjectManagerItem } from '../project-manager.model';
 
+interface ClaudeSubtask {
+  title: string;
+  notes?: string;
+}
+
 interface ClaudeTask {
   title: string;
   timeEstimate?: number;
   dueDay?: string;
   deadlineDay?: string;
   notes?: string;
+  subtasks?: ClaudeSubtask[];
 }
 
 @Component({
@@ -65,7 +71,10 @@ Return ONLY a JSON array with this exact structure (no other text):
     "timeEstimate": 3600000,
     "dueDay": "2026-07-10",
     "deadlineDay": "2026-07-15",
-    "notes": "optional notes"
+    "notes": "optional notes",
+    "subtasks": [
+      { "title": "Subtask title", "notes": "optional notes" }
+    ]
   }
 ]
 
@@ -73,6 +82,7 @@ Rules:
 - timeEstimate is in milliseconds (1h = 3600000)
 - dueDay is when you plan to work on it (YYYY-MM-DD)
 - deadlineDay is the hard deadline (YYYY-MM-DD), optional
+- subtasks is optional — use it for exercise sessions (sets/reps per exercise), meals (items per meal), etc.
 - Generate 3-8 tasks that cover the full scope`;
   });
 
@@ -103,6 +113,12 @@ Rules:
         dueDay: typeof t['dueDay'] === 'string' ? t['dueDay'] : undefined,
         deadlineDay: typeof t['deadlineDay'] === 'string' ? t['deadlineDay'] : undefined,
         notes: typeof t['notes'] === 'string' ? t['notes'] : undefined,
+        subtasks: Array.isArray(t['subtasks'])
+          ? (t['subtasks'] as Record<string, unknown>[]).map((s) => ({
+              title: String(s['title'] ?? ''),
+              notes: typeof s['notes'] === 'string' ? s['notes'] : undefined,
+            }))
+          : undefined,
       }));
       this.parsedTasks.set(validated);
       this.step.set('preview');
@@ -114,7 +130,7 @@ Rules:
   createAll(): void {
     for (const t of this.parsedTasks()) {
       if (!t.title.trim()) continue;
-      this._taskService.add(
+      const taskId = this._taskService.add(
         t.title,
         false,
         {
@@ -125,6 +141,15 @@ Rules:
         },
         true,
       );
+      if (t.subtasks?.length && taskId) {
+        for (const s of t.subtasks) {
+          if (!s.title.trim()) continue;
+          this._taskService.addSubTaskTo(taskId, {
+            title: s.title,
+            notes: s.notes ?? undefined,
+          });
+        }
+      }
     }
     this._dialogRef.close(this.parsedTasks());
   }

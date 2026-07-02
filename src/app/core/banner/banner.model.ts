@@ -18,6 +18,7 @@ export enum BannerId {
   RatePrompt = 'RatePrompt',
   SyncConflictContentResolved = 'SyncConflictContentResolved',
   UpdateAvailable = 'UpdateAvailable',
+  WeeklySetup = 'WeeklySetup',
 }
 
 export const BANNER_SORT_PRIO_MAP = {
@@ -38,6 +39,7 @@ export const BANNER_SORT_PRIO_MAP = {
   [BannerId.RatePrompt]: 0,
   [BannerId.SyncConflictContentResolved]: 1,
   [BannerId.UpdateAvailable]: 0,
+  [BannerId.WeeklySetup]: 1,
 } as const;
 
 export interface BannerAction {

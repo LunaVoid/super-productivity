@@ -21,6 +21,8 @@ export type AppFeaturesConfig = Readonly<{
   isEnableUserProfiles: boolean;
   isHabitsEnabled: boolean;
   isFinishDayEnabled: boolean;
+  isGoalsEnabled: boolean;
+  isProjectManagerEnabled: boolean;
 }>;
 
 export type MiscConfig = Readonly<{

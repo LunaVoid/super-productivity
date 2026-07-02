@@ -107,6 +107,12 @@ export class MagicNavConfigService {
   private readonly isDonatePageEnabled = computed(
     () => this._configService.appFeatures().isDonatePageEnabled,
   );
+  private readonly isGoalsEnabled = computed(
+    () => this._configService.appFeatures().isGoalsEnabled ?? true,
+  );
+  private readonly isProjectManagerEnabled = computed(
+    () => this._configService.appFeatures().isProjectManagerEnabled ?? true,
+  );
   private readonly isHabitsEnabled = computed(
     () => this._configService.appFeatures().isHabitsEnabled,
   );
@@ -434,21 +440,27 @@ export class MagicNavConfigService {
       });
     }
 
-    items.push({
-      type: 'route',
-      id: 'goals',
-      label: T.MH.GOALS,
-      icon: 'flag',
-      route: '/goals',
-    });
+    if (this.isGoalsEnabled()) {
+      items.push({
+        type: 'route',
+        id: 'goals',
+        label: T.MH.GOALS,
+        icon: 'flag',
+        route: '/goals',
+        featureConfigKey: 'isGoalsEnabled',
+      });
+    }
 
-    items.push({
-      type: 'route',
-      id: 'project-manager',
-      label: 'Projects',
-      icon: 'folder',
-      route: '/project-manager',
-    });
+    if (this.isProjectManagerEnabled()) {
+      items.push({
+        type: 'route',
+        id: 'project-manager',
+        label: 'Project Manager',
+        icon: 'folder',
+        route: '/project-manager',
+        featureConfigKey: 'isProjectManagerEnabled',
+      });
+    }
 
     if (this.isHabitsEnabled()) {
       items.push({

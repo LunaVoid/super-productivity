@@ -57,9 +57,10 @@ export class GoalPageComponent {
   private readonly _calendarProviders = this._store.selectSignal(selectCalendarProviders);
   readonly hasCalendarProvider = computed(() => this._calendarProviders().length > 0);
 
-  /** Root goals (no parent) sorted yearly → monthly → weekly → daily */
+  /** Root goals (no parent) sorted area → yearly → monthly → weekly → daily */
   readonly rootGoals = computed(() => {
     const order: Record<GoalHorizon, number> = {
+      AREA: -1,
       YEARLY: 0,
       MONTHLY: 1,
       WEEKLY: 2,
@@ -122,6 +123,14 @@ export class GoalPageComponent {
       data: { preselectedHorizon } satisfies DialogCreateGoalData,
       width: '480px',
     });
+  }
+
+  openCreateAreaDialog(): void {
+    const ref = this._matDialog.open(DialogCreateGoalComponent, {
+      data: { preselectedHorizon: 'AREA' } satisfies DialogCreateGoalData,
+      width: '400px',
+    });
+    ref.componentInstance.isAreaMode.set(true);
   }
 
   exportWeek(): void {

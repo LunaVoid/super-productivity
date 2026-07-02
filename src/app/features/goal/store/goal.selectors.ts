@@ -155,6 +155,8 @@ const isTimestampInWindow = (
         d.getMonth() === month &&
         d.getDate() === now.getDate()
       );
+    case 'AREA':
+      return false;
   }
 };
 
