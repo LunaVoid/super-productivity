@@ -184,7 +184,12 @@ describe('DialogCreateGoalComponent', () => {
 
       component.submit();
 
-      expect(mockTaskService.add).toHaveBeenCalledWith('Daily workout', false, {}, false);
+      expect(mockTaskService.add).toHaveBeenCalledWith(
+        'Daily workout',
+        false,
+        { timeEstimate: jasmine.any(Number) },
+        false,
+      );
       expect(mockTaskRepeatCfgService.addTaskRepeatCfgToTask).toHaveBeenCalledWith(
         'mock-task-id',
         null,
@@ -245,6 +250,46 @@ describe('DialogCreateGoalComponent', () => {
       expect(component.isLevelSelected('WEEKLY')).toBeTrue();
       expect(component.isLevelSelected('YEARLY')).toBeFalse();
       expect(component.isLevelSelected('MONTHLY')).toBeFalse();
+    });
+  });
+
+  describe('topHorizon → selectedLevels sync', () => {
+    it('defaults topHorizon to YEARLY with all three levels selected', async () => {
+      const component = await setupTestBed();
+      expect(component.topHorizon()).toBe('YEARLY');
+      expect(component.isLevelSelected('YEARLY')).toBeTrue();
+      expect(component.isLevelSelected('MONTHLY')).toBeTrue();
+      expect(component.isLevelSelected('WEEKLY')).toBeTrue();
+    });
+
+    it('MONTHLY topHorizon selects MONTHLY + WEEKLY only', async () => {
+      const component = await setupTestBed();
+      component.topHorizon.set('MONTHLY');
+      // Trigger effect synchronously in tests
+      TestBed.flushEffects();
+      expect(component.isLevelSelected('YEARLY')).toBeFalse();
+      expect(component.isLevelSelected('MONTHLY')).toBeTrue();
+      expect(component.isLevelSelected('WEEKLY')).toBeTrue();
+    });
+
+    it('WEEKLY topHorizon selects only WEEKLY', async () => {
+      const component = await setupTestBed();
+      component.topHorizon.set('WEEKLY');
+      TestBed.flushEffects();
+      expect(component.isLevelSelected('YEARLY')).toBeFalse();
+      expect(component.isLevelSelected('MONTHLY')).toBeFalse();
+      expect(component.isLevelSelected('WEEKLY')).toBeTrue();
+    });
+
+    it('switching back to YEARLY restores all levels', async () => {
+      const component = await setupTestBed();
+      component.topHorizon.set('WEEKLY');
+      TestBed.flushEffects();
+      component.topHorizon.set('YEARLY');
+      TestBed.flushEffects();
+      expect(component.isLevelSelected('YEARLY')).toBeTrue();
+      expect(component.isLevelSelected('MONTHLY')).toBeTrue();
+      expect(component.isLevelSelected('WEEKLY')).toBeTrue();
     });
   });
 

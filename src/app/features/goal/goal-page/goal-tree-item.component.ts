@@ -22,6 +22,7 @@ import {
   selectGoalProgressFactory,
   selectTasksForGoalFactory,
 } from '../store/goal.selectors';
+import { selectTaskEntities } from '../../tasks/store/task.selectors';
 import { deleteGoal, unlinkTaskFromGoal, updateGoal } from '../store/goal.actions';
 import { selectCurrentTaskId } from '../../tasks/store/task.selectors';
 import { ActiveGoalService } from '../active-goal.service';
@@ -59,6 +60,7 @@ export class GoalTreeItemComponent {
   @ViewChild('intentionInput') intentionInputRef?: ElementRef<HTMLInputElement>;
 
   private readonly _allGoals = this._store.selectSignal(selectAllGoals);
+  private readonly _taskEntities = this._store.selectSignal(selectTaskEntities);
 
   /** Children looked up from store — always accurate, no prop-drilling needed. */
   readonly children = computed(() =>
@@ -110,11 +112,18 @@ export class GoalTreeItemComponent {
     return this.linkedTasks().some((t) => t.id === currentId);
   });
 
+  /** True if any task in the goal's linkedTaskIds has a repeatCfgId (will regenerate). */
+  readonly hasLinkedRepeatTask = computed(() => {
+    const entities = this._taskEntities();
+    return (this.goal().linkedTaskIds ?? []).some((id) => !!entities[id]?.repeatCfgId);
+  });
+
   readonly hasNoNextAction = computed(
     () =>
       (this.goal().horizon === 'WEEKLY' || this.goal().horizon === 'DAILY') &&
       this.linkedTasks().length === 0 &&
-      !this.goal().linkedRepeatCfgId,
+      !this.goal().linkedRepeatCfgId &&
+      !this.hasLinkedRepeatTask(),
   );
 
   readonly hasTarget = computed(() => {
